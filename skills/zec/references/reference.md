@@ -32,8 +32,8 @@ Common patterns, flag reference, and legacy command mapping used across all ZEC 
 
 For configuration file paths, see: CLAUDE.md Section 9
 For error handling delegation, see: CLAUDE.md Section 11
-For completion markers, see: .claude/rules/moai/core/zec-constitution.md
-For development mode details, see: .claude/rules/moai/workflow/workflow-modes.md
+For completion markers, see: .claude/rules/zec/core/zec-constitution.md
+For development mode details, see: .claude/rules/zec/workflow/workflow-modes.md
 
 ---
 
@@ -110,7 +110,7 @@ Applicable Workflows:
 
 - plan --resume SPEC-XXX: Resume SPEC creation from last checkpoint
 - run --resume SPEC-XXX: Resume DDD/TDD implementation from last completed task
-- moai --resume SPEC-XXX: Resume full autonomous workflow from last phase
+- zec --resume SPEC-XXX: Resume full autonomous workflow from last phase
 - fix --resume: Resume fix cycle from last diagnostic state
 
 ---
@@ -234,7 +234,7 @@ Previous /zec:X-Y command format mapped to new /zec subcommand format:
 - /zec:9-feedback maps to /zec feedback
 - /zec:fix maps to /zec fix
 - /zec:loop maps to /zec loop
-- /zec:moai maps to /zec (default autonomous workflow)
+- /zec:zec maps to /zec (default autonomous workflow)
 - /zec:review maps to /zec review
 - /zec:clean maps to /zec clean
 - /zec:codemaps maps to /zec codemaps

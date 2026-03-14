@@ -36,8 +36,8 @@ planning and review, while Agent Teams teammates spawn in new tmux panes that
 inherit GLM env vars — routing them through Z.AI's cost-effective GLM API.
 
 ```
-User runs: moai glm sk-xxx     (save API key, once)
-User runs: tmux new -s moai    (start tmux session)
+User runs: zec glm sk-xxx     (save API key, once)
+User runs: tmux new -s zec    (start tmux session)
 User runs: zec cg             (configure CG mode)
     │
     ├── Validates tmux session (required)
@@ -113,13 +113,13 @@ Detection steps:
 
 1. **Save GLM API key** (once):
    ```bash
-   moai glm sk-your-glm-api-key
+   zec glm sk-your-glm-api-key
    ```
    Or set `GLM_API_KEY` environment variable.
 
 2. **Start tmux session** (required for CG mode):
    ```bash
-   tmux new -s moai
+   tmux new -s zec
    ```
 
 3. **Enable CG mode** (inside tmux):
@@ -177,7 +177,7 @@ Agent model mapping in CG mode:
 | Failure | Recovery |
 |---------|----------|
 | Not in tmux | Error: "CG mode requires a tmux session" |
-| No API key | Error: "Run moai glm <api-key> first" |
+| No API key | Error: "Run zec glm <api-key> first" |
 | Teammate spawn failure | Falls back to sub-agent mode |
 | tmux env injection failure | Fatal for CG mode (retry tmux session) |
 | Quality gate failure | Leader creates fix task or manual intervention |
@@ -198,7 +198,7 @@ Agent model mapping in CG mode:
 When done with CG mode:
 
 ```bash
-moai cc
+zec cc
 ```
 
 This command:

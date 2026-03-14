@@ -33,7 +33,7 @@ Flow: TeamCreate -> Parallel Research -> Annotation Cycle -> SPEC Document -> Sh
 
 ## Prerequisites
 
-See .claude/rules/moai/workflow/spec-workflow.md for team mode prerequisites.
+See .claude/rules/zec/workflow/spec-workflow.md for team mode prerequisites.
 
 ## Phase 0: Team Setup
 
@@ -43,7 +43,7 @@ See .claude/rules/moai/workflow/spec-workflow.md for team mode prerequisites.
 
 2. Create team:
    ```
-   TeamCreate(team_name: "moai-plan-{feature-slug}")
+   TeamCreate(team_name: "zec-plan-{feature-slug}")
    ```
 
 3. Create shared task list:
@@ -61,11 +61,11 @@ Spawn 3 teammates using the **team-reader** profile with role-specific prompts a
 ```
 Agent(
   subagent_type: "team-reader",
-  team_name: "moai-plan-{feature-slug}",
+  team_name: "zec-plan-{feature-slug}",
   name: "researcher",
   model: "haiku",
   mode: "plan",
-  prompt: "You are a codebase researcher on team moai-plan-{feature-slug}.
+  prompt: "You are a codebase researcher on team zec-plan-{feature-slug}.
     Explore the codebase for {feature_description}.
     Read target code areas IN DEPTH — understand deeply how each module works, its intricacies and side effects.
     Study cross-module interactions IN GREAT DETAIL — trace data flow through the system.
@@ -78,11 +78,11 @@ Agent(
 
 Agent(
   subagent_type: "team-reader",
-  team_name: "moai-plan-{feature-slug}",
+  team_name: "zec-plan-{feature-slug}",
   name: "analyst",
   model: "sonnet",
   mode: "plan",
-  prompt: "You are a requirements analyst on team moai-plan-{feature-slug}.
+  prompt: "You are a requirements analyst on team zec-plan-{feature-slug}.
     Analyze requirements for {feature_description}.
     Identify user stories, acceptance criteria, edge cases, risks, and constraints.
     Define acceptance criteria using EARS format.
@@ -92,11 +92,11 @@ Agent(
 
 Agent(
   subagent_type: "team-reader",
-  team_name: "moai-plan-{feature-slug}",
+  team_name: "zec-plan-{feature-slug}",
   name: "architect",
   model: "opus",
   mode: "plan",
-  prompt: "You are a technical architect on team moai-plan-{feature-slug}.
+  prompt: "You are a technical architect on team zec-plan-{feature-slug}.
     Design the technical approach for {feature_description}.
     Evaluate implementation alternatives, assess trade-offs, propose architecture.
     Consider existing patterns found by the researcher — build on reference implementations rather than designing from scratch.
@@ -178,7 +178,7 @@ AskUserQuestion with options:
 3. Wait maximum 30 seconds for shutdown_responses
 4. Clean up GLM env vars and restore Claude-only operation:
    ```bash
-   moai cc
+   zec cc
    ```
    This safely removes GLM env vars while preserving ANTHROPIC_AUTH_TOKEN and other settings.
    Do NOT manually Read/Write settings.local.json — use the CLI command which handles JSON merging correctly.

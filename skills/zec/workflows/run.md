@@ -31,7 +31,7 @@ triggers:
 
 Implement SPEC requirements using the configured development methodology.
 
-For methodology details (DDD ANALYZE-PRESERVE-IMPROVE and TDD RED-GREEN-REFACTOR cycles, success criteria, brownfield enhancement), see: .claude/rules/moai/workflow/workflow-modes.md
+For methodology details (DDD ANALYZE-PRESERVE-IMPROVE and TDD RED-GREEN-REFACTOR cycles, success criteria, brownfield enhancement), see: .claude/rules/zec/workflow/workflow-modes.md
 
 ## Scope
 
@@ -200,7 +200,7 @@ Purpose: Scan files that will be modified during implementation to build an MX c
 
 **Skip Condition:** If target files do not exist (greenfield implementation), skip this phase.
 
-See .claude/rules/moai/workflow/mx-tag-protocol.md for tag type definitions.
+See .claude/rules/zec/workflow/mx-tag-protocol.md for tag type definitions.
 
 ### Batch Mode Decision [MANDATORY EVALUATION]
 
@@ -345,7 +345,7 @@ If status is PASS or WARNING: Continue to Phase 2.8.
 
 ### Phase 2.7: Re-planning Gate Check
 
-Purpose: Detect stagnation and trigger re-assessment if implementation is stuck. See .claude/rules/moai/workflow/spec-workflow.md for trigger conditions, communication path, and detection method.
+Purpose: Detect stagnation and trigger re-assessment if implementation is stuck. See .claude/rules/zec/workflow/spec-workflow.md for trigger conditions, communication path, and detection method.
 
 Check `.zec/specs/SPEC-{ID}/progress.md` for stagnation signals. If triggered, return structured stagnation report to ZEC for user escalation.
 
@@ -369,7 +369,7 @@ Output: review_findings per dimension, iterations_completed count, final review 
 
 ### Phase 2.9: MX Tag Update
 
-Purpose: Update @MX code annotations for modified files. See .claude/rules/moai/workflow/mx-tag-protocol.md for tag rules.
+Purpose: Update @MX code annotations for modified files. See .claude/rules/zec/workflow/mx-tag-protocol.md for tag rules.
 
 **TDD Mode:**
 - Remove `@MX:TODO` tags for tests that now pass
@@ -458,7 +458,7 @@ Options:
 
 ## Execution Mode Gate Integration
 
-When the run phase is invoked from plan.md Decision Point 3.5 or moai.md Phase 11.5, the gate passes these parameters:
+When the run phase is invoked from plan.md Decision Point 3.5 or zec.md Phase 11.5, the gate passes these parameters:
 - `execution_mode`: worktree | team | sub-agent
 - `active_mode`: cc | glm | cg
 - `tmux_available`: true | false
@@ -498,7 +498,7 @@ Team composition: backend-dev (inherit) + frontend-dev (inherit) + tester (inher
 - [HARD] Read-only teammates (quality) MUST NOT use `isolation: "worktree"` — permissionMode: plan is sufficient
 - After team shutdown, run `git worktree prune` to clean up stale worktree references
 
-See .claude/rules/moai/workflow/worktree-integration.md for the complete worktree decision tree.
+See .claude/rules/zec/workflow/worktree-integration.md for the complete worktree decision tree.
 
 For detailed team orchestration steps, see ${CLAUDE_SKILL_DIR}/team/run.md.
 

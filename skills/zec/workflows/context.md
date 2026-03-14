@@ -150,7 +150,7 @@ Display Format:
 
 When used with /zec sync or phase transitions, create git tags for session boundaries:
 
-Tag Format: `moai/SPEC-{ID}/{phase}-complete`
+Tag Format: `zec/SPEC-{ID}/{phase}-complete`
 
 Tag Message:
 ```

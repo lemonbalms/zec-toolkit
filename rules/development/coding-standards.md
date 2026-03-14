@@ -21,7 +21,7 @@ User-facing documentation may use multiple languages:
 CLAUDE.md must not exceed 40,000 characters.
 
 When approaching limit:
-- Move detailed content to .claude/rules/moai/
+- Move detailed content to .claude/rules/zec/
 - Use @import references
 - Keep only core identity and hard rules in CLAUDE.md
 

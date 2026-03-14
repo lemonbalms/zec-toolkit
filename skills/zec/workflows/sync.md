@@ -676,7 +676,7 @@ Timestamp: ISO-8601 timestamp
 After successful commit, create a session boundary tag to enable `/zec context` reconstruction:
 
 ```
-git tag -a "moai/SPEC-{ID}/sync-complete" \
+git tag -a "zec/SPEC-{ID}/sync-complete" \
   -m "Sync phase completed
 SPEC: SPEC-XXX
 Docs updated: N files
@@ -685,7 +685,7 @@ Context embedded in: [commit hash]
 Next action: Feature complete or /zec plan for next SPEC"
 ```
 
-Tag naming convention: `moai/SPEC-{ID}/sync-complete`
+Tag naming convention: `zec/SPEC-{ID}/sync-complete`
 
 **Context Memory Integration:**
 
@@ -745,11 +745,11 @@ which golangci-lint && golangci-lint run --timeout=5m \
 
 # Check 4: Cross-compile all CI targets (mirrors CI build job)
 # Run all 5 targets in parallel — CGO_ENABLED=0 for all
-GOOS=linux   GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/ci-build-linux-amd64     ./cmd/moai/ &
-GOOS=linux   GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/ci-build-linux-arm64     ./cmd/moai/ &
-GOOS=darwin  GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/ci-build-darwin-amd64    ./cmd/moai/ &
-GOOS=darwin  GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/ci-build-darwin-arm64    ./cmd/moai/ &
-GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/ci-build-windows-amd64.exe ./cmd/moai/ &
+GOOS=linux   GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/ci-build-linux-amd64     ./cmd/zec/ &
+GOOS=linux   GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/ci-build-linux-arm64     ./cmd/zec/ &
+GOOS=darwin  GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/ci-build-darwin-amd64    ./cmd/zec/ &
+GOOS=darwin  GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/ci-build-darwin-arm64    ./cmd/zec/ &
+GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/ci-build-windows-amd64.exe ./cmd/zec/ &
 wait
 ```
 
@@ -992,4 +992,4 @@ All of the following must be verified:
 
 Version: 3.5.0
 Updated: 2026-03-11
-Source: Extracted from .claude/commands/moai/3-sync.md v3.4.0. Added deep code review with 4-perspective analysis and auto-fix (Phase 0.5.4 enhanced), coverage analysis with test generation (Phase 0.7 new), SPEC divergence analysis, project document updates, SPEC lifecycle awareness, team mode section, LSP quality gates, strategy-aware git delivery, deployment readiness check, and Context Memory generation in git commits (Step 3.1.1 new) for seamless session resumption and decision tracking across development cycles.
+Source: Extracted from .claude/commands/zec/3-sync.md v3.4.0. Added deep code review with 4-perspective analysis and auto-fix (Phase 0.5.4 enhanced), coverage analysis with test generation (Phase 0.7 new), SPEC divergence analysis, project document updates, SPEC lifecycle awareness, team mode section, LSP quality gates, strategy-aware git delivery, deployment readiness check, and Context Memory generation in git commits (Step 3.1.1 new) for seamless session resumption and decision tracking across development cycles.

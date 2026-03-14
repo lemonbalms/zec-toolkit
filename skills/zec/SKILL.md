@@ -1,5 +1,5 @@
 ---
-name: moai
+name: zec
 description: >
   ZEC super agent - unified orchestrator for autonomous development.
   Routes natural language or explicit subcommands (plan, run, sync, fix,
@@ -26,11 +26,11 @@ argument-hint: "[subcommand] [args] | \"natural language task\""
 Rules and constraints governing all workflows are always loaded from these sources. Do NOT duplicate their content here:
 
 - Core identity, orchestration principles, agent catalog: CLAUDE.md
-- Quality gates, security boundaries: .claude/rules/moai/core/zec-constitution.md
-- SPEC workflow phases, token budgets: .claude/rules/moai/workflow/spec-workflow.md
-- Development methodologies (DDD/TDD): .claude/rules/moai/workflow/workflow-modes.md
+- Quality gates, security boundaries: .claude/rules/zec/core/zec-constitution.md
+- SPEC workflow phases, token budgets: .claude/rules/zec/workflow/spec-workflow.md
+- Development methodologies (DDD/TDD): .claude/rules/zec/workflow/workflow-modes.md
 - Agent definitions: See CLAUDE.md Section 4. For agent creation, use builder-agent subagent.
-- @MX tag rules and protocol: .claude/rules/moai/workflow/mx-tag-protocol.md
+- @MX tag rules and protocol: .claude/rules/zec/workflow/mx-tag-protocol.md
 
 ---
 
@@ -86,13 +86,13 @@ Only if BOTH Priority 1 AND Priority 2 did not match: Classify the intent of the
 - Documentation language (document, sync, docs, readme, changelog, PR) routes to **sync** or **project**
 - Feedback and bug report language (report, feedback, suggestion, issue) routes to **feedback**
 - MX tag language (mx tag, annotation, code context, legacy annotate) routes to **mx**
-- Implementation language (implement, build, create, add, develop) with clear scope routes to **moai** (default autonomous)
+- Implementation language (implement, build, create, add, develop) with clear scope routes to **zec** (default autonomous)
 
 ### Priority 4: Default Behavior
 
 If the intent remains ambiguous after all priority checks, use AskUserQuestion to present the top 2-3 matching workflows and let the user choose.
 
-If the intent is clearly a development task with no specific routing signal, default to the **moai** workflow (plan -> run -> sync pipeline) for full autonomous execution.
+If the intent is clearly a development task with no specific routing signal, default to the **zec** workflow (plan -> run -> sync pipeline) for full autonomous execution.
 
 ---
 
@@ -182,7 +182,7 @@ Purpose: Full autonomous research -> plan -> annotate -> run -> sync pipeline.
 Phases: Parallel Exploration (research.md) -> SPEC Generation -> Annotation Cycle -> Implementation -> Sync
 Agents: Explore, manager-spec, manager-ddd/tdd, manager-quality, manager-docs, manager-git
 Flags: --loop, --max N, --branch, --pr, --resume SPEC-XXX, --team, --solo, --no-issue
-For detailed orchestration: Read ${CLAUDE_SKILL_DIR}/workflows/moai.md
+For detailed orchestration: Read ${CLAUDE_SKILL_DIR}/workflows/zec.md
 
 ### project - Project Documentation
 

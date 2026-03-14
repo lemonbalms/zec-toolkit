@@ -64,7 +64,7 @@ the tmux session has GLM env vars injected by `zec cg`.
 
 - `zec cg` has been run inside tmux (team_mode="cg" in llm.yaml)
 - Claude Code started in the SAME pane where `zec cg` was run
-- GLM API key saved via `moai glm <key>` or `GLM_API_KEY` env
+- GLM API key saved via `zec glm <key>` or `GLM_API_KEY` env
 
 ### Phase 1: Plan (Leader on Claude)
 
@@ -95,7 +95,7 @@ Teammates execute implementation in parallel using GLM via Z.AI API.
 
 1. Create team:
    ```
-   TeamCreate(team_name: "moai-run-SPEC-XXX")
+   TeamCreate(team_name: "zec-run-SPEC-XXX")
    ```
 
 2. Create shared task list with dependencies:
@@ -116,11 +116,11 @@ from the tmux session, routing them through Z.AI API.
 ```
 Agent(
   subagent_type: "team-coder",
-  team_name: "moai-run-SPEC-XXX",
+  team_name: "zec-run-SPEC-XXX",
   name: "backend-dev",
   isolation: "worktree",
   mode: "acceptEdits",
-  prompt: "You are backend-dev on team moai-run-SPEC-XXX.
+  prompt: "You are backend-dev on team zec-run-SPEC-XXX.
     Implement backend tasks from the shared task list.
     SPEC: .zec/specs/SPEC-XXX/spec.md
     File ownership: server-side files (*.go excluding *_test.go), API handlers, models, database code.
@@ -130,11 +130,11 @@ Agent(
 
 Agent(
   subagent_type: "team-coder",
-  team_name: "moai-run-SPEC-XXX",
+  team_name: "zec-run-SPEC-XXX",
   name: "frontend-dev",
   isolation: "worktree",
   mode: "acceptEdits",
-  prompt: "You are frontend-dev on team moai-run-SPEC-XXX.
+  prompt: "You are frontend-dev on team zec-run-SPEC-XXX.
     Implement frontend tasks from the shared task list.
     SPEC: .zec/specs/SPEC-XXX/spec.md
     File ownership: client-side files (components, pages, styles, assets).
@@ -144,11 +144,11 @@ Agent(
 
 Agent(
   subagent_type: "team-tester",
-  team_name: "moai-run-SPEC-XXX",
+  team_name: "zec-run-SPEC-XXX",
   name: "tester",
   isolation: "worktree",
   mode: "acceptEdits",
-  prompt: "You are tester on team moai-run-SPEC-XXX.
+  prompt: "You are tester on team zec-run-SPEC-XXX.
     Write tests for implemented features.
     SPEC: .zec/specs/SPEC-XXX/spec.md
     Own all test files (*_test.go, *.test.*, __tests__/) exclusively.
@@ -222,7 +222,7 @@ Agent(
 
 3. Clean up GLM env vars and restore Claude-only operation:
    ```bash
-   moai cc
+   zec cc
    ```
    This safely removes GLM env vars while preserving ANTHROPIC_AUTH_TOKEN and other settings.
    Do NOT manually Read/Write settings.local.json — use the CLI command which handles JSON merging correctly.
@@ -257,7 +257,7 @@ When `team_mode == "agent-teams"` in llm.yaml, use parallel teammates all on the
 
 1. Create team:
    ```
-   TeamCreate(team_name: "moai-run-SPEC-XXX")
+   TeamCreate(team_name: "zec-run-SPEC-XXX")
    ```
 
 2. Create shared task list with dependencies:
@@ -274,9 +274,9 @@ When `team_mode == "agent-teams"` in llm.yaml, use parallel teammates all on the
 Spawn teammates with file ownership boundaries and worktree isolation:
 
 ```
-Task(subagent_type: "team-coder", team_name: "moai-run-SPEC-XXX", name: "backend-dev", isolation: "worktree", mode: "acceptEdits", prompt: "Backend role. File ownership: server-side code. ...")
-Task(subagent_type: "team-coder", team_name: "moai-run-SPEC-XXX", name: "frontend-dev", isolation: "worktree", mode: "acceptEdits", prompt: "Frontend role. File ownership: client-side code. ...")
-Task(subagent_type: "team-tester", team_name: "moai-run-SPEC-XXX", name: "tester", isolation: "worktree", mode: "acceptEdits", prompt: "Testing role. File ownership: test files exclusively. ...")
+Task(subagent_type: "team-coder", team_name: "zec-run-SPEC-XXX", name: "backend-dev", isolation: "worktree", mode: "acceptEdits", prompt: "Backend role. File ownership: server-side code. ...")
+Task(subagent_type: "team-coder", team_name: "zec-run-SPEC-XXX", name: "frontend-dev", isolation: "worktree", mode: "acceptEdits", prompt: "Frontend role. File ownership: client-side code. ...")
+Task(subagent_type: "team-tester", team_name: "zec-run-SPEC-XXX", name: "tester", isolation: "worktree", mode: "acceptEdits", prompt: "Testing role. File ownership: test files exclusively. ...")
 ```
 
 [HARD] All implementation teammates MUST use `isolation: "worktree"` for parallel file safety.

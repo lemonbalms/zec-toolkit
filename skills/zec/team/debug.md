@@ -43,7 +43,7 @@ Flow: TeamCreate -> Hypothesis Assignment -> Parallel Investigation -> Evidence 
 2. Formulate 2-3 competing hypotheses
 3. Create team:
    ```
-   TeamCreate(team_name: "moai-debug-{issue-slug}")
+   TeamCreate(team_name: "zec-debug-{issue-slug}")
    ```
 4. Create investigation tasks:
    ```
@@ -94,7 +94,7 @@ After all investigations complete:
 1. Shutdown all investigation teammates
 2. Clean up GLM env vars and restore Claude-only operation:
    ```bash
-   moai cc
+   zec cc
    ```
    This safely removes GLM env vars while preserving ANTHROPIC_AUTH_TOKEN and other settings.
    Do NOT manually Read/Write settings.local.json — use the CLI command which handles JSON merging correctly.

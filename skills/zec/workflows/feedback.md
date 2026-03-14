@@ -84,7 +84,7 @@ Pass to manager-quality:
 
 ### Issue Creation Command
 
-The manager-quality agent executes: gh issue create --repo modu-ai/moai-adk
+The manager-quality agent executes: gh issue create --repo modu-ai/zec-adk
 
 Issue body uses a consistent template including:
 

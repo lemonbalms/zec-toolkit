@@ -13,7 +13,7 @@ ZEC skills follow the Agent Skills standard with ZEC-specific extensions.
 ### Standard Fields (agentskills.io)
 
 Required fields:
-- name: Skill identifier, lowercase with hyphens, max 64 characters (system: moai-{category}-{name}, user: custom-{name})
+- name: Skill identifier, lowercase with hyphens, max 64 characters (system: zec-{category}-{name}, user: custom-{name})
 - description: Purpose description using YAML folded scalar (>), max 1024 characters
 
 Optional standard fields:
@@ -60,7 +60,7 @@ triggers: Loading trigger conditions
 
 ```yaml
 ---
-name: moai-example-skill
+name: zec-example-skill
 description: >
   Brief description of what this skill does, max 1024 characters.
   Use YAML folded scalar (>) for multi-line descriptions.

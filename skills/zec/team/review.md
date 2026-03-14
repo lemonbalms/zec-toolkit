@@ -42,7 +42,7 @@ Flow: TeamCreate -> Perspective Assignment -> Parallel Review -> Report Consolid
 1. Identify the code changes to review (diff, PR, or file list)
 2. Create team:
    ```
-   TeamCreate(team_name: "moai-review-{target}")
+   TeamCreate(team_name: "zec-review-{target}")
    ```
 3. Create review tasks:
    ```
@@ -60,10 +60,10 @@ Use the review team pattern. All spawns MUST use Agent() with `team_name` and `n
 ```
 Agent(
   subagent_type: "team-validator",
-  team_name: "moai-review-{target}",
+  team_name: "zec-review-{target}",
   name: "security-reviewer",
   mode: "plan",
-  prompt: "You are a security reviewer on team moai-review-{target}.
+  prompt: "You are a security reviewer on team zec-review-{target}.
     Review the following changes for security issues.
     Check OWASP Top 10 compliance, input validation, authentication/authorization,
     secrets exposure, injection risks.
@@ -73,10 +73,10 @@ Agent(
 
 Agent(
   subagent_type: "team-validator",
-  team_name: "moai-review-{target}",
+  team_name: "zec-review-{target}",
   name: "perf-reviewer",
   mode: "plan",
-  prompt: "You are a performance reviewer on team moai-review-{target}.
+  prompt: "You are a performance reviewer on team zec-review-{target}.
     Review the following changes for performance issues.
     Check algorithmic complexity, database query efficiency, memory usage,
     caching opportunities, bundle size impact.
@@ -86,10 +86,10 @@ Agent(
 
 Agent(
   subagent_type: "team-validator",
-  team_name: "moai-review-{target}",
+  team_name: "zec-review-{target}",
   name: "quality-reviewer",
   mode: "plan",
-  prompt: "You are a code quality reviewer on team moai-review-{target}.
+  prompt: "You are a code quality reviewer on team zec-review-{target}.
     Review the following changes for code quality.
     Check TRUST 5 compliance, naming conventions, error handling,
     test coverage, documentation, consistency with project patterns.
@@ -99,10 +99,10 @@ Agent(
 
 Agent(
   subagent_type: "team-validator",
-  team_name: "moai-review-{target}",
+  team_name: "zec-review-{target}",
   name: "ux-reviewer",
   mode: "plan",
-  prompt: "You are a UX reviewer on team moai-review-{target}.
+  prompt: "You are a UX reviewer on team zec-review-{target}.
     Review the following changes for user experience impact.
     Validate user flows remain functional, check error states and edge cases
     from the user's perspective, verify accessibility compliance,
@@ -148,7 +148,7 @@ After all reviews complete:
    ```
 2. Clean up GLM env vars and restore Claude-only operation:
    ```bash
-   moai cc
+   zec cc
    ```
    This safely removes GLM env vars while preserving ANTHROPIC_AUTH_TOKEN and other settings.
    Do NOT manually Read/Write settings.local.json — use the CLI command which handles JSON merging correctly.
