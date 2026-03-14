@@ -161,7 +161,7 @@ backend/
 
 ## Integration Status
 
-✅ Skill directory created: `.claude/skills/fastapi-backend-guidelines/`
+✅ Skill directory created: `.claude/skills/harness-fastapi/`
 ✅ Main skill.md updated for YGS patterns
 ✅ 10 resource files with FastAPI patterns
 ✅ YGS-specific patterns documented:
@@ -198,7 +198,7 @@ backend/
 ## Files Created
 
 ```
-.claude/skills/fastapi-backend-guidelines/
+.claude/skills/harness-fastapi/
   ├── skill.md                              # Main skill overview
   ├── README.md                             # This file
   └── resources/

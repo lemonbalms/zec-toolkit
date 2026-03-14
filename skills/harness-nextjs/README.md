@@ -164,7 +164,7 @@ frontend/
 ## Files Structure
 
 ```
-.claude/skills/nextjs-frontend-guidelines/
+.claude/skills/harness-nextjs/
   ├── skill.md                              # Main skill overview
   ├── README.md                             # This file
   └── resources/
