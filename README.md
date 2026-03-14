@@ -4,7 +4,9 @@ ZEC Development Toolkit — Claude Code plugin for unified development orchestra
 
 ## Overview
 
-`zec-toolkit`는 Claude Code 프로젝트에서 공통으로 사용하는 스킬, 규칙, 템플릿을 제공하는 플러그인입니다.
+`zec-toolkit`는 [MoAI-ADK](https://github.com/modu-ai/moai-adk)를 기반으로 만든 개인용 Claude Code 플러그인입니다. MoAI-ADK의 에이전트 오케스트레이션, 스킬 시스템, 품질 게이트 등 실제로 자주 쓰는 기능만 추려서 가볍게 재구성했고, 다른 플러그인(oh-my-claudecode 등)과 충돌 없이 함께 사용할 수 있도록 네이밍과 구조를 분리했습니다.
+
+개인 워크플로우에 맞춰 커스터마이징한 설정이므로, 범용 사용보다는 개인 프로젝트 간 일관된 개발 환경을 유지하는 데 목적이 있습니다.
 
 ## Contents
 
