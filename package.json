@@ -1,0 +1,11 @@
+{
+  "name": "zec-toolkit",
+  "version": "1.0.0",
+  "description": "ZEC Development Toolkit — Claude Code plugin for unified development orchestration",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lemonbalms/zec-toolkit.git"
+  },
+  "author": "lemonbalms",
+  "license": "MIT"
+}

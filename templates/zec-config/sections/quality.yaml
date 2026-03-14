@@ -1,0 +1,4 @@
+quality:
+    development_mode: ddd
+    test_coverage_target: 85
+    enforce_quality: true

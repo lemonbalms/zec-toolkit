@@ -1,0 +1,9 @@
+execution:
+    default_mode: ultrawork
+    model_routing:
+        simple: haiku
+        standard: sonnet
+        complex: opus
+    persistence:
+        max_iterations: 50
+        state_dir: .zec/state
