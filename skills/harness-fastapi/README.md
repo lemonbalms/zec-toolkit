@@ -2,7 +2,7 @@
 
 ## Overview
 
-FastAPI 백엔드 개발을 위한 아키텍처 패턴과 베스트 프랙티스를 제공하는 스킬입니다.
+A skill providing architecture patterns and best practices for FastAPI backend development.
 
 - **FastAPI** (async Python framework)
 - **SQLModel + SQLAlchemy** (ORM)
@@ -12,21 +12,21 @@ FastAPI 백엔드 개발을 위한 아키텍처 패턴과 베스트 프랙티스
 
 ## What This Skill Covers
 
-1. **Layered Architecture** — Router → Service → Repository 계층 구조
-2. **API Routes & Routers** — FastAPI 라우터, dependency injection
-3. **Database & ORM** — SQLModel 모델, async 쿼리, 세션 관리
-4. **Domain-Driven Design** — 도메인 중심 구조 설계
-5. **Service Layer** — 비즈니스 로직 분리, 오케스트레이션
-6. **Repository Pattern** — 데이터 접근 계층, BaseRepository
-7. **DTOs & Validation** — Pydantic DTO, 요청/응답 검증
-8. **Async/Await Patterns** — 비동기 패턴, asyncio.gather 병렬 쿼리
-9. **Error Handling** — 커스텀 예외, 미들웨어 에러 처리
-10. **Complete Examples** — 전체 CRUD 도메인 구현 예제
+1. **Layered Architecture** — Router → Service → Repository layer structure
+2. **API Routes & Routers** — FastAPI routers, dependency injection
+3. **Database & ORM** — SQLModel models, async queries, session management
+4. **Domain-Driven Design** — Domain-centric project organization
+5. **Service Layer** — Business logic separation, orchestration
+6. **Repository Pattern** — Data access layer, BaseRepository
+7. **DTOs & Validation** — Pydantic DTOs, request/response validation
+8. **Async/Await Patterns** — Async patterns, asyncio.gather for parallel queries
+9. **Error Handling** — Custom exceptions, middleware error handling
+10. **Complete Examples** — Full CRUD domain implementation examples
 
 ## Architecture Patterns
 
 ### Prefixed ULID (Stripe-style Entity IDs)
-엔티티별 접두사를 붙인 ULID 기반 식별자 생성. Stripe가 `cus_`, `sub_` 등으로 대중화한 방식.
+ULID-based identifiers with entity-specific prefixes. Popularized by Stripe with `cus_`, `sub_`, etc.
 ```python
 from ulid import ULID
 
@@ -35,7 +35,7 @@ def generate_user_id() -> str:
 ```
 
 ### CQRS — Read/Write Session Separation
-읽기와 쓰기 세션을 분리하여 Read Replica 라우팅을 지원하는 CQRS 패턴.
+Separates read and write sessions to support Read Replica routing via the CQRS pattern.
 ```python
 # Read operations (GET)
 @router.get("/{user_id}")
@@ -51,7 +51,7 @@ async def create_user(
 ```
 
 ### DataLoader Pattern — N+1 Query Prevention
-Facebook이 GraphQL용으로 설계한 DataLoader 패턴을 활용한 N+1 쿼리 방지.
+Prevents N+1 queries using the DataLoader pattern, originally designed by Facebook for GraphQL.
 ```python
 user_with_relations = await self._data_loader.load_user_with_relations(
     user_id,
@@ -61,7 +61,7 @@ user_with_relations = await self._data_loader.load_user_with_relations(
 ```
 
 ### Field-level Validator (Pydantic v2)
-Pydantic v2의 `field_validator`를 활용한 DTO 입력 검증.
+DTO input validation using Pydantic v2's `field_validator`.
 ```python
 class StatusUpdateRequest(BaseModel):
     status: Optional[str] = Field(None)
@@ -78,7 +78,7 @@ class StatusUpdateRequest(BaseModel):
 ```
 
 ### Soft Delete (Logical Delete)
-물리 삭제 대신 `deleted_at` 타임스탬프 기반의 논리 삭제.
+Logical deletion via `deleted_at` timestamp instead of physical row removal.
 
 ## Skill Activation
 
@@ -93,38 +93,38 @@ class StatusUpdateRequest(BaseModel):
 
 ```
 .claude/skills/harness-fastapi/
-  ├── skill.md                              # 스킬 개요
-  ├── README.md                             # 이 문서
+  ├── skill.md                              # Skill overview
+  ├── README.md                             # This document
   └── resources/
       ├── layered-architecture.md           # Router → Service → Repository
-      ├── api-routes.md                     # FastAPI 라우터 & 엔드포인트
-      ├── database-orm.md                   # SQLModel 쿼리 & 모델
-      ├── domain-driven-design.md           # 도메인 구조 설계
-      ├── service-layer.md                  # 비즈니스 로직 계층
-      ├── repository-pattern.md             # 데이터 접근 계층
-      ├── dtos-validation.md                # Pydantic DTO
-      ├── async-patterns.md                 # Async/await 패턴
-      ├── error-handling.md                 # 커스텀 예외 처리
-      └── complete-examples.md              # 전체 CRUD 구현 예제
+      ├── api-routes.md                     # FastAPI routers & endpoints
+      ├── database-orm.md                   # SQLModel queries & models
+      ├── domain-driven-design.md           # Domain organization
+      ├── service-layer.md                  # Business logic layer
+      ├── repository-pattern.md             # Data access layer
+      ├── dtos-validation.md                # Pydantic DTOs
+      ├── async-patterns.md                 # Async/await patterns
+      ├── error-handling.md                 # Custom exception handling
+      └── complete-examples.md              # Full CRUD implementation
 ```
 
 ## Core Principles
 
-| # | 원칙 | 패턴 명칭 |
-|---|------|-----------|
-| 1 | 계층 우회 금지 (Router → Service → Repository) | **Layered Architecture** |
-| 2 | 도메인 중심 구조 설계 | **Domain-Driven Design (DDD)** |
-| 3 | 전 구간 비동기 처리 | **Async/Await** |
-| 4 | 데이터 접근은 반드시 Repository 경유 | **Repository Pattern** |
-| 5 | 비즈니스 로직은 Service에 집중 | **Service Layer Pattern** |
-| 6 | API 입출력에 DTO 사용 | **DTO (Data Transfer Object)** |
-| 7 | 모든 함수에 타입 힌트 명시 | **Type Hints** |
-| 8 | 커스텀 예외를 HTTP 상태로 매핑 | **Exception Mapping** |
-| 9 | 읽기/쓰기 세션 분리 | **CQRS / Read Replica Routing** |
-| 10 | FastAPI Depends() 활용 | **Dependency Injection** |
-| 11 | 엔티티 접두사 식별자 | **Prefixed ULID** |
-| 12 | 논리 삭제 (deleted_at) | **Soft Delete** |
-| 13 | 관계 로딩 시 N+1 방지 | **DataLoader Pattern** |
+| # | Principle | Pattern |
+|---|-----------|---------|
+| 1 | Never bypass layers (Router → Service → Repository) | **Layered Architecture** |
+| 2 | Organize by domain, not by type | **Domain-Driven Design (DDD)** |
+| 3 | Use async/await throughout the stack | **Async/Await** |
+| 4 | All data access through repositories | **Repository Pattern** |
+| 5 | Business logic belongs in services, not routers | **Service Layer Pattern** |
+| 6 | Use DTOs for API input/output | **DTO (Data Transfer Object)** |
+| 7 | Explicit type hints on all functions | **Type Hints** |
+| 8 | Map custom exceptions to HTTP status codes | **Exception Mapping** |
+| 9 | Separate read/write sessions | **CQRS / Read Replica Routing** |
+| 10 | Use FastAPI Depends() for injection | **Dependency Injection** |
+| 11 | Entity-prefixed identifiers | **Prefixed ULID** |
+| 12 | Logical deletion via deleted_at | **Soft Delete** |
+| 13 | Prevent N+1 on relation loading | **DataLoader Pattern** |
 
 ---
 
