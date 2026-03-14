@@ -2,57 +2,42 @@
 
 ## Overview
 
-This skill provides comprehensive backend development guidelines adapted specifically for your YGS (영영사/Youngyeolsa) project's tech stack:
+FastAPI 백엔드 개발을 위한 아키텍처 패턴과 베스트 프랙티스를 제공하는 스킬입니다.
 
 - **FastAPI** (async Python framework)
 - **SQLModel + SQLAlchemy** (ORM)
-- **Python 3.12.3** (exact version)
 - **PostgreSQL** with asyncpg
 - **Domain-Driven Design** architecture
 - **Layered Architecture** (Router → Service → Repository)
-- **ULID** for ID generation with prefixes
-- **Firebase + Kakao OAuth** authentication
 
 ## What This Skill Covers
 
-1. **Layered Architecture** - Router → Service → Repository pattern
-2. **API Routes & Routers** - FastAPI router patterns, dependency injection
-3. **Database & ORM** - SQLModel models, async queries, session management
-4. **Domain-Driven Design** - Domain organization, separation of concerns
-5. **Service Layer** - Business logic, orchestration, domain rules
-6. **Repository Pattern** - Data access layer, BaseRepository extension, UserDataLoader
-7. **DTOs & Validation** - Pydantic DTOs, request/response validation with field_validator
-8. **Async/Await Patterns** - Async best practices, asyncio.gather for parallel queries
-9. **Error Handling** - Custom exceptions, middleware error handling
-10. **Complete Examples** - Full CRUD domain implementation
+1. **Layered Architecture** — Router → Service → Repository 계층 구조
+2. **API Routes & Routers** — FastAPI 라우터, dependency injection
+3. **Database & ORM** — SQLModel 모델, async 쿼리, 세션 관리
+4. **Domain-Driven Design** — 도메인 중심 구조 설계
+5. **Service Layer** — 비즈니스 로직 분리, 오케스트레이션
+6. **Repository Pattern** — 데이터 접근 계층, BaseRepository
+7. **DTOs & Validation** — Pydantic DTO, 요청/응답 검증
+8. **Async/Await Patterns** — 비동기 패턴, asyncio.gather 병렬 쿼리
+9. **Error Handling** — 커스텀 예외, 미들웨어 에러 처리
+10. **Complete Examples** — 전체 CRUD 도메인 구현 예제
 
-## YGS-Specific Patterns
+## Architecture Patterns
 
-### ID Generation with ULID
+### Prefixed ULID (Stripe-style Entity IDs)
+엔티티별 접두사를 붙인 ULID 기반 식별자 생성. Stripe가 `cus_`, `sub_` 등으로 대중화한 방식.
 ```python
 from ulid import ULID
 
 def generate_user_id() -> str:
     return f"usr_{ULID()}"  # usr_01HQ5K3NXYZ...
-
-def generate_match_history_id() -> str:
-    return f"mh_{ULID()}"   # mh_01HQ5K3NXYZ...
 ```
 
-**Entity Prefixes:**
-- `usr_` - User
-- `doc_` - UserDocument
-- `pho_` - UserPhoto
-- `sub_` - UserSubscription
-- `aud_` - UserAccessAudit
-- `mw_` - MatchWeek
-- `mh_` - MatchHistory
-- `mf_` - MatchFeedback
-- `cs_` - ConsultSchedule
-
-### Read/Write Session Separation
+### CQRS — Read/Write Session Separation
+읽기와 쓰기 세션을 분리하여 Read Replica 라우팅을 지원하는 CQRS 패턴.
 ```python
-# Read operations (GET requests)
+# Read operations (GET)
 @router.get("/{user_id}")
 async def get_user(
     session: AsyncSession = Depends(get_read_session_dependency),
@@ -65,173 +50,82 @@ async def create_user(
 ): ...
 ```
 
-### N+1 Prevention with UserDataLoader
+### DataLoader Pattern — N+1 Query Prevention
+Facebook이 GraphQL용으로 설계한 DataLoader 패턴을 활용한 N+1 쿼리 방지.
 ```python
-# Parallel query loading for user with relations
 user_with_relations = await self._data_loader.load_user_with_relations(
     user_id,
     load_profile=True,
     load_photos=True,
-    load_documents=True,
 )
 ```
 
-### DTO Validation with field_validator
+### Field-level Validator (Pydantic v2)
+Pydantic v2의 `field_validator`를 활용한 DTO 입력 검증.
 ```python
-class AdminBasicInfoUpdateRequest(BaseModel):
+class StatusUpdateRequest(BaseModel):
     status: Optional[str] = Field(None)
-
-    model_config = {"extra": "forbid"}  # Reject unknown fields
+    model_config = {"extra": "forbid"}
 
     @field_validator("status")
     @classmethod
     def validate_status(cls, v: Optional[str]) -> Optional[str]:
         if v is not None:
-            valid_values = [e.value for e in UserStatusEnum]
+            valid_values = [e.value for e in StatusEnum]
             if v not in valid_values:
                 raise ValueError(f"Invalid: {v}")
         return v
 ```
 
+### Soft Delete (Logical Delete)
+물리 삭제 대신 `deleted_at` 타임스탬프 기반의 논리 삭제.
+
 ## Skill Activation
-
-The skill is configured to activate when:
-
-### File Triggers
-- Working in `backend/backend/**/*.py`
-- Files containing FastAPI imports, async patterns, SQLModel, repositories
 
 ### Prompt Triggers
 - Keywords: "backend", "FastAPI", "service", "repository", "router", "async", "SQLModel", "domain", "dto"
-- Intent patterns: Creating/editing routes, services, repositories, database queries
 
 ### Enforcement
 - **Type**: Domain (suggests, doesn't block)
 - **Priority**: High
-- The skill will suggest itself when working on backend code
 
-## Project Structure Match
-
-The skill references YOUR actual project structure:
-
-```
-backend/
-  backend/
-    main.py                    # FastAPI app with lifespan
-
-    api/v1/routers/            # Your routers
-      admin.py                 # Dashboard, members, matching (950+ lines)
-      auth.py                  # Login, signup, Firebase, Kakao OAuth
-      match.py                 # Match weeks, history, cards
-      user.py                  # User CRUD, photos, documents
-      upload.py                # S3 presigned URLs
-
-    domain/                    # Your domains
-      user/
-        model.py               # User, UserProfile, UserLifestyle, etc.
-        repository.py          # UserRepository, UserDataLoader
-        service.py             # UserService
-        enums.py               # All domain enums
-      auth/
-        service.py             # AuthService (JWT, Firebase, Kakao)
-      admin/
-        service.py             # AdminService
-        matching_service.py    # Compatibility scoring
-      match/
-        model.py               # MatchWeek, MatchHistory, MatchFeedback
-        service.py             # MatchService
-      llm/
-        matching_service.py    # LLM-enhanced matching
-      shared/
-        base_repository.py     # Generic BaseRepository
-
-    dtos/                      # Your DTOs
-      admin.py                 # Dashboard, member update DTOs
-      auth.py                  # OAuth DTOs
-      match.py                 # Match DTOs
-      user.py                  # User DTOs
-      llm_match.py             # LLM matching DTOs
-
-    db/
-      orm.py                   # Read/Write session management with caching
-
-    error/
-      __init__.py              # AppException hierarchy
-```
-
-## Integration Status
-
-✅ Skill directory created: `.claude/skills/harness-fastapi/`
-✅ Main skill.md updated for YGS patterns
-✅ 10 resource files with FastAPI patterns
-✅ YGS-specific patterns documented:
-  - ULID ID generation with prefixes
-  - Read/Write session separation
-  - UserDataLoader for N+1 prevention
-  - Firebase/Kakao OAuth
-  - field_validator patterns
-  - Soft delete with deleted_at
-
-## Tech Stack Compatibility
-
-✅ **FastAPI**: All patterns use FastAPI routers and dependencies
-✅ **SQLModel + SQLAlchemy**: Query patterns and model definitions
-✅ **Async/await**: All examples use async throughout
-✅ **Python 3.12.3**: Type hints and modern Python patterns
-✅ **PostgreSQL + asyncpg**: Async database operations
-✅ **Domain-Driven Design**: Matches your domain organization
-✅ **Layered Architecture**: Router → Service → Repository pattern
-✅ **Pydantic v2**: DTOs with field_validator
-✅ **ULID**: ID generation with entity prefixes
-✅ **Your session management**: Uses `get_read_session_dependency()` and `get_write_session_dependency()`
-
-## Key YGS Domains
-
-| Domain | Description | Key Models |
-|--------|-------------|------------|
-| `user` | User management | User, UserProfile, UserLifestyle, UserPreference, UserDocument, UserPhoto, UserSubscription, UserAccessAudit |
-| `auth` | Authentication | JWT tokens, Firebase social auth, Kakao OAuth |
-| `admin` | Admin dashboard | ConsultSchedule, member management, statistics |
-| `match` | Matching system | MatchWeek, MatchHistory, MatchFeedback |
-| `llm` | LLM matching | Gemini-enhanced compatibility analysis |
-
-## Files Created
+## Files
 
 ```
 .claude/skills/harness-fastapi/
-  ├── skill.md                              # Main skill overview
-  ├── README.md                             # This file
+  ├── skill.md                              # 스킬 개요
+  ├── README.md                             # 이 문서
   └── resources/
       ├── layered-architecture.md           # Router → Service → Repository
-      ├── api-routes.md                     # FastAPI routers & endpoints
-      ├── database-orm.md                   # SQLModel queries & models
-      ├── domain-driven-design.md           # Domain organization
-      ├── service-layer.md                  # Business logic layer
-      ├── repository-pattern.md             # Data access layer
-      ├── dtos-validation.md                # Pydantic DTOs
-      ├── async-patterns.md                 # Async/await best practices
-      ├── error-handling.md                 # Custom exceptions
-      └── complete-examples.md              # Full CRUD implementation
+      ├── api-routes.md                     # FastAPI 라우터 & 엔드포인트
+      ├── database-orm.md                   # SQLModel 쿼리 & 모델
+      ├── domain-driven-design.md           # 도메인 구조 설계
+      ├── service-layer.md                  # 비즈니스 로직 계층
+      ├── repository-pattern.md             # 데이터 접근 계층
+      ├── dtos-validation.md                # Pydantic DTO
+      ├── async-patterns.md                 # Async/await 패턴
+      ├── error-handling.md                 # 커스텀 예외 처리
+      └── complete-examples.md              # 전체 CRUD 구현 예제
 ```
 
-## Core Principles Covered
+## Core Principles
 
-1. **Layered Architecture**: Never bypass layers (Router → Service → Repository)
-2. **Domain-Driven Design**: Organize by domain, not by type
-3. **Async Everything**: Use async/await throughout the stack
-4. **Repository Pattern**: All data access through repositories
-5. **Service Layer**: Business logic in services, not routers
-6. **DTOs for API**: Use Pydantic DTOs for request/response
-7. **Type Hints**: Explicit types on all functions
-8. **Error Handling**: Custom exceptions mapped to HTTP
-9. **Read/Write Split**: Separate sessions for different operations
-10. **Dependency Injection**: Use FastAPI's Depends()
-11. **ULID IDs**: Entity prefixes for readable IDs
-12. **Soft Delete**: deleted_at instead of hard deletes
-13. **N+1 Prevention**: UserDataLoader with asyncio.gather
+| # | 원칙 | 패턴 명칭 |
+|---|------|-----------|
+| 1 | 계층 우회 금지 (Router → Service → Repository) | **Layered Architecture** |
+| 2 | 도메인 중심 구조 설계 | **Domain-Driven Design (DDD)** |
+| 3 | 전 구간 비동기 처리 | **Async/Await** |
+| 4 | 데이터 접근은 반드시 Repository 경유 | **Repository Pattern** |
+| 5 | 비즈니스 로직은 Service에 집중 | **Service Layer Pattern** |
+| 6 | API 입출력에 DTO 사용 | **DTO (Data Transfer Object)** |
+| 7 | 모든 함수에 타입 힌트 명시 | **Type Hints** |
+| 8 | 커스텀 예외를 HTTP 상태로 매핑 | **Exception Mapping** |
+| 9 | 읽기/쓰기 세션 분리 | **CQRS / Read Replica Routing** |
+| 10 | FastAPI Depends() 활용 | **Dependency Injection** |
+| 11 | 엔티티 접두사 식별자 | **Prefixed ULID** |
+| 12 | 논리 삭제 (deleted_at) | **Soft Delete** |
+| 13 | 관계 로딩 시 N+1 방지 | **DataLoader Pattern** |
 
 ---
 
-**Status**: ✅ Fully integrated with YGS-specific patterns
-**Updated**: 2026-01-14
-**Project**: YGS (영영사/Youngyeolsa) - 전문 매칭 플랫폼
+**Updated**: 2026-03-15
