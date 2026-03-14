@@ -6,5 +6,6 @@
     "name": "lemonbalms"
   },
   "repository": "https://github.com/lemonbalms/zec-toolkit",
-  "license": "MIT"
+  "license": "MIT",
+  "skills": "./skills/"
 }
