@@ -197,7 +197,7 @@ function createSkillInvocation(skillName, originalPrompt, args = '') {
 
 You MUST invoke the skill using the Skill tool:
 
-Skill: zec:${skillName}${argsSection}
+Skill: ${skillName}${argsSection}
 
 User request:
 ${originalPrompt}
@@ -217,7 +217,7 @@ function createMultiSkillInvocation(skills, originalPrompt) {
   const skillBlocks = skills.map((s, i) => {
     const argsSection = s.args ? `\nArguments: ${s.args}` : '';
     return `### Skill ${i + 1}: ${s.name.toUpperCase()}
-Skill: zec:${s.name}${argsSection}`;
+Skill: ${s.name}${argsSection}`;
   }).join('\n\n');
 
   return `[MAGIC KEYWORDS DETECTED: ${skills.map(s => s.name.toUpperCase()).join(', ')}]
@@ -498,10 +498,12 @@ async function main() {
 
     // Separate mode-only keywords from skill-invocable keywords
     const modeOnlyNames = new Set(['ralph', 'ultrawork', 'autopilot', 'team', 'pipeline', 'ccg', 'ultrapilot']);
-    const skillMappedNames = { plan: 'zec', tdd: 'zec', ralplan: 'zec', deepsearch: 'zec', analyze: 'zec', sciomc: 'zec' };
+    const contextOnlyNames = new Set(['deepsearch', 'analyze', 'sciomc']);
+    const skillMappedNames = { plan: 'zec', tdd: 'zec', ralplan: 'zec' };
 
     const modeMatches = resolved.filter(m => modeOnlyNames.has(m.name));
-    const skillMatches = resolved.filter(m => !modeOnlyNames.has(m.name));
+    const contextMatches = resolved.filter(m => contextOnlyNames.has(m.name));
+    const skillMatches = resolved.filter(m => !modeOnlyNames.has(m.name) && !contextOnlyNames.has(m.name));
 
     // Remap keywords that are zec subcommands to Skill: zec with args
     const remappedSkills = skillMatches.map(m => {
@@ -517,6 +519,14 @@ async function main() {
     if (modeMatches.length > 0) {
       const modeNames = modeMatches.map(m => m.name.toUpperCase()).join(', ');
       parts.push(`[ACTIVE MODE: ${modeNames}] Mode activated. Proceed with the user's request. Use --${modeMatches[0].name} flag if invoking /zec workflows.`);
+    }
+
+    // Context-only keywords (enhanced behavior hints, no skill or state)
+    if (contextMatches.length > 0) {
+      const contextHints = { deepsearch: 'Use Explore agent or Grep/Glob for thorough codebase search.', analyze: 'Use deep analysis with sequential reasoning. Consider using --deepthink flag.', sciomc: 'Use data analysis tools and structured reasoning for the dataset.' };
+      for (const cm of contextMatches) {
+        parts.push(`[${cm.name.toUpperCase()}] ${contextHints[cm.name] || 'Enhanced mode activated.'}`);
+      }
     }
 
     // Skill invocations for real skills
