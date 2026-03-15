@@ -18,17 +18,41 @@ Claude Code가 설치되어 있지 않다면 먼저 [Claude Code 공식 문서](
 
 ## 설치 방법
 
+<Tabs items={['GitHub에서 설치', '로컬 소스에서 설치', '인터랙티브 UI']}>
+<Tabs.Tab>
+
 <Steps>
 
-### 플러그인 추가
+### 마켓플레이스 등록
+
+Claude Code 내에서 마켓플레이스를 등록합니다:
+
+```
+/plugin marketplace add lemonbalms/zec-toolkit
+```
+
+### 플러그인 설치
 
 ```bash
-claude plugin add lemonbalms/zec-toolkit
+claude plugin install zec-toolkit@lemonbalms-zec-toolkit
+```
+
+설치 범위를 지정할 수 있습니다:
+
+```bash
+# 모든 프로젝트에서 사용 (기본값)
+claude plugin install zec-toolkit@lemonbalms-zec-toolkit --scope user
+
+# 팀 공유 (.claude/settings.json에 기록)
+claude plugin install zec-toolkit@lemonbalms-zec-toolkit --scope project
+
+# 현재 저장소만
+claude plugin install zec-toolkit@lemonbalms-zec-toolkit --scope local
 ```
 
 ### 설치 확인
 
-Claude Code를 실행하고 `/zec` 명령어가 인식되는지 확인합니다:
+Claude Code에서 `/zec` 명령어가 인식되는지 확인합니다:
 
 ```
 > /zec
@@ -36,23 +60,53 @@ Claude Code를 실행하고 `/zec` 명령어가 인식되는지 확인합니다:
 
 ZEC 오케스트레이터가 응답하면 설치가 완료된 것입니다.
 
-### 프로젝트 초기 설정
+</Steps>
 
-설치 후 프로젝트 디렉토리에서 초기 설정을 진행합니다. 자세한 내용은 [초기 설정](/getting-started/init-wizard) 문서를 참고하세요.
+</Tabs.Tab>
+<Tabs.Tab>
+
+<Steps>
+
+### 저장소 클론
+
+```bash
+git clone https://github.com/lemonbalms/zec-toolkit.git
+```
+
+### 플러그인 디렉토리 지정하여 실행
+
+```bash
+claude --plugin-dir ./zec-toolkit
+```
+
+이 방식은 현재 세션에만 플러그인을 로드합니다. 코드를 수정한 후 `/reload-plugins`를 실행하면 변경사항이 반영됩니다.
+
+### 설치 확인
+
+Claude Code에서 `/zec` 명령어가 인식되는지 확인합니다.
 
 </Steps>
 
-## 수동 설치 (소스)
+<Callout type="info">
+로컬 소스 설치는 플러그인 개발이나 테스트 시 유용합니다. 프로덕션 사용 시에는 GitHub 설치를 권장합니다.
+</Callout>
 
-플러그인 저장소를 직접 클론하여 설치할 수도 있습니다:
+</Tabs.Tab>
+<Tabs.Tab>
 
-```bash
-# 저장소 클론
-git clone https://github.com/lemonbalms/zec-toolkit.git
+Claude Code에서 `/plugin` 명령어를 입력하면 인터랙티브 UI가 열립니다:
 
-# Claude Code 설정에서 플러그인 경로 지정
-claude plugin add ./zec-toolkit
-```
+- **Discover** — 마켓플레이스에서 플러그인 검색 및 설치
+- **Installed** — 설치된 플러그인 관리 (활성화/비활성화/제거)
+- **Marketplaces** — 마켓플레이스 추가/제거
+- **Errors** — 플러그인 로딩 오류 확인
+
+</Tabs.Tab>
+</Tabs>
+
+### 프로젝트 초기 설정
+
+설치 후 프로젝트 디렉토리에서 초기 설정을 진행합니다. 자세한 내용은 [초기 설정](/getting-started/init-wizard) 문서를 참고하세요.
 
 ## 포함되는 항목
 
@@ -78,19 +132,15 @@ ZEC Toolkit은 네이밍과 구조를 분리하여 다른 플러그인과 충돌
 | claude-code-harness | 스킬 원본 저장소 | Harness 스킬 중복 (ZEC 버전 우선) |
 | 기타 커스텀 플러그인 | - | `zec-` 접두사로 분리 |
 
-## 업데이트
+## 관리 명령어
 
-```bash
-# 최신 버전으로 업데이트
-claude plugin update lemonbalms/zec-toolkit
-```
-
-## 제거
-
-```bash
-# 플러그인 제거
-claude plugin remove lemonbalms/zec-toolkit
-```
+| 작업 | 명령어 |
+|------|--------|
+| 설치 | `claude plugin install zec-toolkit@lemonbalms-zec-toolkit` |
+| 업데이트 | `claude plugin update zec-toolkit@lemonbalms-zec-toolkit` |
+| 제거 | `claude plugin uninstall zec-toolkit@lemonbalms-zec-toolkit` |
+| 활성화 | `claude plugin enable zec-toolkit@lemonbalms-zec-toolkit` |
+| 비활성화 | `claude plugin disable zec-toolkit@lemonbalms-zec-toolkit` |
 
 <Callout type="warning">
 제거 시 프로젝트의 `.zec/` 디렉토리는 삭제되지 않습니다. 설정을 완전히 제거하려면 수동으로 삭제하세요.
@@ -105,13 +155,7 @@ claude plugin remove lemonbalms/zec-toolkit
 Error: Unknown command
 ```
 
-플러그인이 올바르게 설치되었는지 확인합니다:
-
-```bash
-claude plugin list
-```
-
-목록에 `zec-toolkit`이 없다면 재설치합니다.
+Claude Code에서 `/plugin` → **Installed** 탭에서 `zec-toolkit`이 있는지 확인합니다. 없다면 재설치합니다.
 
 ### 스킬이 로드되지 않음
 
