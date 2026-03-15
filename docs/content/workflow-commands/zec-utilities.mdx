@@ -1,0 +1,93 @@
+# 유틸리티 명령어
+
+Plan-Run-Sync 외 보조 워크플로우입니다.
+
+## /zec fix — 에러 자동 수정
+
+LSP 에러, 린트 실패, 타입 에러를 자동 진단하고 수정합니다.
+
+```bash
+/zec fix                     # 자동 감지 + 수정
+/zec fix --dry               # 수정 없이 진단만
+/zec fix --sequential        # 순차 실행
+/zec fix --team              # 팀 모드
+```
+
+에이전트: `expert-debug` (진단) + `expert-backend`/`expert-frontend` (수정)
+
+---
+
+## /zec loop — 반복 수정
+
+에러가 모두 해결되거나 최대 반복 횟수 도달까지 반복합니다.
+
+```bash
+/zec loop                    # 기본 반복
+/zec loop --max 10           # 최대 10회
+/zec loop --auto-fix         # 자동 수정
+```
+
+에이전트: `expert-debug` + `expert-backend`/`expert-frontend` + `expert-testing`
+
+---
+
+## /zec clean — 미사용 코드 제거
+
+사용하지 않는 코드, import, 파일을 식별하고 안전하게 제거합니다.
+
+```bash
+/zec clean                   # 전체 스캔
+/zec clean --dry             # 제거 없이 목록만
+/zec clean --safe-only       # 안전한 항목만
+/zec clean --file src/old.ts # 특정 파일
+```
+
+에이전트: `expert-refactoring` + `expert-testing`
+
+---
+
+## /zec mx — MX 태그 스캔
+
+코드베이스를 스캔하여 `@MX` 어노테이션을 추가/업데이트합니다.
+
+```bash
+/zec mx                      # 전체 스캔
+/zec mx --all                # 모든 파일
+/zec mx --dry                # 변경 없이 보고만
+/zec mx --priority P1        # P1 우선순위만
+```
+
+자동 부착 규칙: `fan_in >= 3` → ANCHOR, `complexity >= 15` → WARN, 매직 상수 → NOTE, 미테스트 → TODO
+
+---
+
+## /zec context — 컨텍스트 메모리
+
+Git 커밋에서 AI-개발자 상호작용 컨텍스트를 추출합니다.
+
+```bash
+/zec context --spec SPEC-AUTH-001    # 특정 SPEC 관련
+/zec context --days 7                # 최근 7일
+/zec context --summary               # 요약만
+```
+
+---
+
+## /zec project — 프로젝트 문서 생성
+
+코드베이스를 분석하여 `.zec/project/`에 product.md, structure.md, tech.md를 생성합니다.
+
+```bash
+/zec project
+```
+
+---
+
+## /zec feedback — GitHub Issue 생성
+
+사용자 피드백을 수집하여 GitHub Issue를 생성합니다.
+
+```bash
+/zec feedback
+/zec fb "버그: 로그인 실패"
+```

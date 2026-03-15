@@ -1,0 +1,94 @@
+# Rules & Templates
+
+ZEC Toolkit에 포함된 규칙(Rules)과 설정 템플릿(Templates)입니다.
+
+import { FileTree } from 'nextra/components'
+
+## Rules (6개)
+
+프로젝트에 자동 적용되는 개발 규칙입니다.
+
+<FileTree>
+  <FileTree.Folder name="rules/" defaultOpen>
+    <FileTree.Folder name="core/" defaultOpen>
+      <FileTree.File name="zec-constitution.md" />
+    </FileTree.Folder>
+    <FileTree.Folder name="development/" defaultOpen>
+      <FileTree.File name="coding-standards.md" />
+      <FileTree.File name="skill-authoring.md" />
+    </FileTree.Folder>
+    <FileTree.Folder name="workflow/" defaultOpen>
+      <FileTree.File name="file-reading-optimization.md" />
+      <FileTree.File name="team-protocol.md" />
+      <FileTree.File name="mx-tag-protocol.md" />
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
+
+### Core
+
+**zec-constitution.md** — ZEC의 불변 원칙:
+- 위임 원칙: 복잡한 작업은 전문 에이전트에게
+- 언어 규칙: 사용자 언어로 응답
+- 병렬 실행: 독립 작업은 병렬 처리 (최대 10개)
+- TRUST 5 품질 게이트 강제
+- 보안 경계: 시크릿 커밋 금지, OWASP 준수
+
+### Development
+
+**coding-standards.md** — 코딩 표준:
+- 지시 문서는 영어로 작성 (CLAUDE.md, 에이전트, 스킬)
+- CLAUDE.md 40,000자 제한
+- 코드 예제/이모지/시간 예측 금지
+- 단일 소스 원칙 (중복 방지)
+
+**skill-authoring.md** — 스킬 작성 가이드:
+- SKILL.md 프론트매터 필수 필드
+- 트리거/리소스 구성 규칙
+
+### Workflow
+
+**file-reading-optimization.md** — 토큰 절약을 위한 파일 읽기 전략:
+
+| 파일 크기 | 전략 |
+|----------|------|
+| 200줄 미만 | 전체 읽기 |
+| 200~500줄 | Grep으로 위치 찾고 부분 읽기 |
+| 500~1000줄 | Grep + 50~100줄 단위 읽기 |
+| 1000줄 이상 | Grep 결과만 사용, 전체 읽기 금지 |
+
+**team-protocol.md** — 팀 에이전트 협업 규칙:
+- SendMessage로 직접 메시지 (broadcast 최소화)
+- TaskUpdate로 완료 표시 (필수)
+- 에러 시 3회 재시도 후 리더에게 보고
+- shutdown_request 처리 프로토콜
+
+**mx-tag-protocol.md** — @MX 태그 규칙 (상세: [MX 태그 프로토콜](/skills-agents/mx-tags))
+
+---
+
+## Templates (15개 YAML)
+
+프로젝트 초기화 시 `.zec/config/sections/`에 복사되는 설정 템플릿입니다.
+
+<FileTree>
+  <FileTree.Folder name="templates/zec-config/sections/" defaultOpen>
+    <FileTree.File name="project.yaml" />
+    <FileTree.File name="system.yaml" />
+    <FileTree.File name="user.yaml" />
+    <FileTree.File name="language.yaml" />
+    <FileTree.File name="quality.yaml" />
+    <FileTree.File name="execution.yaml" />
+    <FileTree.File name="workflow.yaml" />
+    <FileTree.File name="context.yaml" />
+    <FileTree.File name="git-convention.yaml" />
+    <FileTree.File name="git-strategy.yaml" />
+    <FileTree.File name="llm.yaml" />
+    <FileTree.File name="mx.yaml" />
+    <FileTree.File name="ralph.yaml" />
+    <FileTree.File name="state.yaml" />
+    <FileTree.File name="statusline.yaml" />
+  </FileTree.Folder>
+</FileTree>
+
+각 템플릿의 상세 설정은 [YAML 설정 가이드](/configuration/yaml-config)를 참고하세요.

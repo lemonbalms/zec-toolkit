@@ -1,0 +1,216 @@
+# SPEC 기반 개발
+
+SPEC(Specification)은 ZEC의 **계획 단위**입니다. 코드를 작성하기 전에 요구사항을 체계적으로 정의하여, AI 에이전트가 정확하게 구현할 수 있는 기반을 만듭니다.
+
+import { Callout, FileTree } from 'nextra/components'
+
+## 왜 SPEC인가?
+
+AI 에이전트에게 "로그인 기능 만들어줘"라고 말하면 결과가 매번 다릅니다. SPEC은 이 문제를 해결합니다:
+
+| 문제 | SPEC의 해결 |
+|------|------------|
+| 모호한 요구사항 | EARS 형식으로 구조화 |
+| 누락된 엣지 케이스 | 인수 조건으로 명시 |
+| 범위 확산 (scope creep) | SPEC 단위로 범위 고정 |
+| 세션 간 연속성 단절 | SPEC 파일로 컨텍스트 보존 |
+| 구현 품질 편차 | 인수 조건 기반 검증 |
+
+## EARS 형식
+
+EARS(Easy Approach to Requirements Syntax)는 요구사항을 5가지 패턴으로 구조화합니다:
+
+| 패턴 | 형식 | 예시 |
+|------|------|------|
+| **Ubiquitous** | The system shall ~ | The system shall encrypt all passwords |
+| **Event-driven** | When [event], the system shall ~ | When login fails 3 times, the system shall lock the account |
+| **State-driven** | While [state], the system shall ~ | While offline, the system shall queue requests |
+| **Optional** | Where [condition], the system shall ~ | Where 2FA is enabled, the system shall require OTP |
+| **Unwanted** | If [condition], the system shall ~ | If token is expired, the system shall return 401 |
+
+## SPEC 파일 구조
+
+`/zec plan` 실행 시 3개 파일이 생성됩니다:
+
+<FileTree>
+  <FileTree.Folder name=".zec/specs/SPEC-AUTH-001" defaultOpen>
+    <FileTree.File name="spec.md" />
+    <FileTree.File name="plan.md" />
+    <FileTree.File name="acceptance.md" />
+    <FileTree.File name="research.md" />
+    <FileTree.File name="progress.md" />
+  </FileTree.Folder>
+</FileTree>
+
+### spec.md — 요구사항 문서
+
+YAML 프론트매터 + EARS 구조의 본문:
+
+```markdown
+---
+id: SPEC-AUTH-001
+version: 1.0.0
+status: draft
+created: 2026-03-15
+updated: 2026-03-15
+author: zec
+priority: high
+issue_number: 42
+---
+
+## HISTORY
+
+- 2026-03-15: 초기 SPEC 생성
+
+## 요구사항
+
+### REQ-1: JWT 토큰 발행
+
+When a user submits valid credentials,
+the system shall issue a JWT access token with 1-hour expiry.
+
+### REQ-2: 토큰 검증 미들웨어
+
+The system shall validate JWT tokens on all protected endpoints.
+
+### REQ-3: 계정 잠금
+
+When login fails 5 consecutive times,
+the system shall lock the account for 30 minutes.
+```
+
+프론트매터 필수 필드 8개: `id`, `version`, `status`, `created`, `updated`, `author`, `priority`, `issue_number`
+
+### plan.md — 구현 계획
+
+기술 스택, 작업 분해, 리스크 분석:
+
+```markdown
+## 기술 스택
+- FastAPI + python-jose (JWT)
+- bcrypt (비밀번호 해싱)
+
+## 작업 분해
+- TASK-001: User 모델 + 비밀번호 해싱
+- TASK-002: JWT 발행/검증 유틸
+- TASK-003: 로그인/로그아웃 엔드포인트
+- TASK-004: 인증 미들웨어
+
+## 리스크
+- 토큰 갱신 전략 미정 → REQ 추가 필요
+```
+
+### acceptance.md — 인수 조건
+
+Given/When/Then 형식의 테스트 시나리오:
+
+```markdown
+## AC-1: 정상 로그인
+Given: 유효한 사용자 계정이 존재할 때
+When: 올바른 이메일과 비밀번호로 로그인 요청
+Then: JWT 토큰이 발급되고 200 응답
+
+## AC-2: 잘못된 비밀번호
+Given: 유효한 사용자 계정이 존재할 때
+When: 잘못된 비밀번호로 로그인 요청
+Then: 401 응답과 에러 메시지
+
+## AC-3: 계정 잠금
+Given: 4회 로그인 실패 이력이 있을 때
+When: 5번째 잘못된 비밀번호로 로그인 요청
+Then: 계정이 잠기고 423 응답
+```
+
+<Callout type="info">
+인수 조건은 최소 2개의 Given/When/Then 시나리오가 필요합니다. 요구사항 모듈은 5개 이하로 제한됩니다.
+</Callout>
+
+## Plan 워크플로우 전체 흐름
+
+```
+/zec plan "사용자 인증 API"
+    │
+    ▼
+Phase 0.5: Deep Research (선택)
+    │  코드베이스 심층 분석 → research.md 생성
+    ▼
+Phase 1A: Project Exploration (선택)
+    │  관련 파일/패턴 탐색
+    ▼
+Phase 1B: SPEC Planning
+    │  manager-spec이 SPEC 후보 제안
+    ▼
+Decision Point 1: 계획 리뷰
+    │  ├─ 승인 → Phase 2로
+    │  ├─ 수정 → Annotation Cycle (최대 6회)
+    │  ├─ 드래프트 저장 → 나중에 resume
+    │  └─ 취소
+    ▼
+Phase 1.5: Pre-Creation Validation
+    │  SPEC ID 형식/고유성 검증
+    ▼
+Phase 2: SPEC 문서 생성
+    │  spec.md + plan.md + acceptance.md
+    ▼
+Phase 2.5: GitHub Issue 생성 (선택)
+    │  SPEC ↔ Issue 양방향 링크
+    ▼
+Phase 3: Git 환경 설정 (선택)
+    │  워크트리 / 브랜치 / 현재 브랜치
+    ▼
+다음 단계 선택
+    ├─ /zec run SPEC-AUTH-001 (구현 시작)
+    ├─ 계획 수정
+    └─ 추가 기능 계획
+```
+
+## Annotation Cycle
+
+SPEC 생성 전에 계획을 반복적으로 다듬는 과정입니다:
+
+1. 사용자가 `plan.md`를 에디터에서 검토
+2. 인라인 노트 추가 (예: `NOTE: drizzle:generate로 마이그레이션`)
+3. ZEC가 노트를 반영하여 계획 업데이트
+4. 다시 검토 → 최대 **6회** 반복
+
+<Callout type="warning">
+Annotation Cycle 동안에는 **코드 구현이 금지**됩니다. "생각과 실행의 분리"가 효과적인 AI 개발의 기반입니다.
+</Callout>
+
+## SPEC ID 규칙
+
+형식: `SPEC-{DOMAIN}-{NUMBER}`
+
+| 도메인 | 설명 |
+|--------|------|
+| AUTH | 인증/인가 |
+| API | API 엔드포인트 |
+| UI | 프론트엔드 인터페이스 |
+| DB | 데이터베이스 |
+| REFACTOR | 리팩토링 |
+| FIX | 버그 수정 |
+| PERF | 성능 최적화 |
+| TEST | 테스트 |
+| INFRA | 인프라 |
+| SECURITY | 보안 |
+
+복합 도메인: 최대 2개 권장, 3개까지 허용 (예: `SPEC-AUTH-API-001`)
+
+## GitHub Issue 연동
+
+SPEC 생성 시 자동으로 GitHub Issue가 생성되고 양방향으로 링크됩니다:
+
+```
+SPEC spec.md  ──────▶  issue_number: 42
+    ◀──────
+GitHub Issue #42  ──▶  SPEC 파일 경로 참조
+```
+
+`/zec run` 실행 시 커밋 메시지에 `Fixes #42`가 포함되어, PR 머지 시 Issue가 자동 닫힙니다.
+
+`--no-issue` 플래그로 Issue 생성을 건너뛸 수 있습니다.
+
+## 다음 단계
+
+- [개발 방법론 (DDD/TDD)](/core-concepts/ddd-tdd) — SPEC을 기반으로 구현하는 방법
+- [/zec plan 상세 가이드](/workflow-commands/zec-plan) — 명령어 옵션과 플래그

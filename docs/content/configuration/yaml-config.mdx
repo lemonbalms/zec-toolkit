@@ -1,0 +1,166 @@
+# YAML 설정 가이드
+
+`.zec/config/sections/` 디렉토리의 15개 YAML 설정 파일 레퍼런스입니다.
+
+import { Callout } from 'nextra/components'
+
+## 필수 설정 (4개)
+
+### user.yaml — 사용자 정보
+
+```yaml
+user:
+  github_username: lemonbalms     # GitHub 사용자명
+  name: my-project                # 프로젝트 식별자
+```
+
+### language.yaml — 언어 설정
+
+```yaml
+language:
+  conversation_language: ko       # 대화 언어
+  conversation_language_name: ko  # 언어 표시명
+  agent_prompt_language: en       # 에이전트 내부 통신 언어
+  git_commit_messages: ko         # 커밋 메시지 언어
+  code_comments: ko               # 코드 주석 + @MX 태그 언어
+  documentation: ko               # 문서 언어
+  error_messages: en              # 에러 메시지 언어
+```
+
+### quality.yaml — 품질 설정
+
+```yaml
+quality:
+  development_mode: ddd           # ddd 또는 tdd
+  test_coverage_target: 85        # 커버리지 목표 (%)
+  enforce_quality: true           # 품질 게이트 강제 적용
+```
+
+### execution.yaml — 실행 설정
+
+```yaml
+execution:
+  default_mode: ultrawork         # 기본 실행 모드
+  model_routing:
+    simple: haiku                 # 간단한 작업
+    standard: sonnet              # 표준 작업
+    complex: opus                 # 복잡한 작업
+  persistence:
+    max_iterations: 50            # 최대 반복 횟수
+    state_dir: .zec/state         # 상태 파일 디렉토리
+```
+
+---
+
+## 선택 설정 (11개)
+
+### project.yaml — 프로젝트 메타데이터
+
+```yaml
+project:
+  name: my-project
+  description: 프로젝트 설명
+  type: web                       # web, api, cli, library
+```
+
+### system.yaml — 시스템 정보
+
+```yaml
+system:
+  version: 2.7.14
+  template_version: 2.7.14
+```
+
+### git-convention.yaml — 커밋 규칙
+
+```yaml
+git_convention:
+  type: conventional              # conventional, gitmoji
+  scope_required: false
+  max_subject_length: 72
+```
+
+### git-strategy.yaml — 브랜치 전략
+
+```yaml
+git_strategy:
+  auto_branch: true               # 자동 브랜치 생성
+  branch_prefix: feature/
+  default_base: main
+```
+
+### workflow.yaml — 워크플로우 설정
+
+```yaml
+workflow:
+  team:
+    enabled: true                 # 팀 모드 활성화
+  auto_sync: false                # 구현 후 자동 sync
+```
+
+### mx.yaml — MX 태그 설정
+
+```yaml
+mx:
+  auto_tag: true                  # 자동 태그 부착
+  thresholds:
+    fan_in_anchor: 3              # ANCHOR 임계값
+    complexity_warn: 15           # WARN 임계값
+    branch_warn: 8                # if-branch WARN
+  limits:
+    anchor_per_file: 3
+    warn_per_file: 5
+  exclude:
+    - "**/*_generated.*"
+    - "**/vendor/**"
+```
+
+### llm.yaml — LLM 설정
+
+```yaml
+llm:
+  team_mode: ""                   # "" (Claude), "glm" (GLM), "cg" (Claude+GLM)
+```
+
+### ralph.yaml — Ralph 루프 설정
+
+```yaml
+ralph:
+  max_iterations: 50
+  stop_on_success: true
+```
+
+### context.yaml — 컨텍스트 관리
+
+```yaml
+context:
+  max_files_per_read: 10
+  progressive_disclosure: true
+```
+
+### state.yaml — 상태 관리
+
+```yaml
+state:
+  dir: .zec/state
+  cleanup_on_complete: true
+```
+
+### statusline.yaml — 상태 표시줄
+
+```yaml
+statusline:
+  enabled: true
+  format: minimal                 # minimal, detailed
+```
+
+---
+
+## 설정 적용 순서
+
+1. `templates/zec-config/sections/` (기본값)
+2. `.zec/config/sections/` (프로젝트 오버라이드)
+
+<Callout type="info">
+프로젝트 설정이 템플릿 기본값을 덮어씁니다. 필요한 항목만 프로젝트에 설정하면 됩니다.
+</Callout>

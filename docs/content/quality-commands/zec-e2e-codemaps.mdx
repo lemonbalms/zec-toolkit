@@ -1,0 +1,62 @@
+# E2E & Codemaps
+
+E2E 테스트 생성과 아키텍처 문서 자동화 명령어입니다.
+
+---
+
+## /zec e2e — End-to-End 테스트
+
+브라우저 기반 E2E 테스트를 생성하고 실행합니다.
+
+### 사용법
+
+```bash
+/zec e2e                             # E2E 테스트 생성
+/zec e2e --record                    # 브라우저 녹화 모드
+/zec e2e --url http://localhost:3000 # 대상 URL 지정
+/zec e2e --journey "로그인 → 대시보드" # 사용자 여정 지정
+```
+
+### 에이전트
+
+| 에이전트 | 역할 |
+|---------|------|
+| `expert-testing` | 테스트 시나리오 설계 + 코드 생성 |
+| `expert-frontend` | UI 인터랙션 패턴 지원 |
+
+### 지원 도구
+
+- **Playwright** — 크로스 브라우저 테스트
+- **Chrome** — Chrome DevTools Protocol
+- **Agent Browser** — AI 에이전트 브라우저
+
+---
+
+## /zec codemaps — 아키텍처 문서
+
+코드베이스를 스캔하여 아키텍처 문서를 자동 생성합니다.
+
+### 사용법
+
+```bash
+/zec codemaps                        # 전체 생성
+/zec codemaps --force                # 기존 문서 덮어쓰기
+/zec codemaps --area backend         # 특정 영역만
+```
+
+### 에이전트
+
+| 에이전트 | 역할 |
+|---------|------|
+| `Explore` | 코드베이스 구조 탐색 |
+| `manager-docs` | 문서 생성 |
+
+### 출력
+
+`.zec/project/codemaps/` 디렉토리에 생성:
+- 모듈 의존성 맵
+- 데이터 흐름 다이어그램
+- API 엔드포인트 목록
+- 디렉토리별 책임 설명
+
+이 문서는 `/zec plan`의 Deep Research와 `/zec run`의 구현 에이전트가 프로젝트를 이해하는 데 사용됩니다.

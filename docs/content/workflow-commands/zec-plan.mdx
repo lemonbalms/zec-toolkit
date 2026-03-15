@@ -1,0 +1,79 @@
+# /zec plan
+
+SPEC 문서를 생성하는 워크플로우입니다. Plan-Run-Sync 파이프라인의 첫 번째 단계입니다.
+
+import { Callout } from 'nextra/components'
+
+## 사용법
+
+```bash
+/zec plan "사용자 인증 API"
+/zec plan resume SPEC-AUTH-001        # 드래프트 이어서 작성
+/zec plan "결제 시스템" --worktree     # 워크트리에서 작업
+/zec plan "대시보드 UI" --branch       # 브랜치 생성
+/zec plan "검색 기능" --no-issue       # GitHub Issue 생성 건너뛰기
+/zec plan "알림 시스템" --team         # 팀 모드 (병렬 탐색)
+```
+
+## 플래그
+
+| 플래그 | 설명 |
+|--------|------|
+| `--worktree` | 독립 Git 워크트리 환경 생성 (최우선) |
+| `--branch` | feature 브랜치 생성 |
+| `--team` | 팀 기반 병렬 탐색 (researcher + analyst + architect) |
+| `--no-issue` | GitHub Issue 생성 건너뛰기 |
+| `resume SPEC-XXX` | 드래프트 이어서 작성 |
+
+## 에이전트
+
+| 단계 | 에이전트 | 모델 |
+|------|---------|------|
+| Deep Research | `Explore` | haiku |
+| SPEC Planning | `manager-spec` | opus |
+| Git 환경 | `manager-git` | haiku |
+
+## 워크플로우 단계
+
+### Phase 0.5: Deep Research (선택)
+
+기존 코드를 수정하거나 모듈 간 의존성이 있을 때 실행됩니다. `Explore` 에이전트가 코드베이스를 심층 분석하여 `.zec/specs/SPEC-{ID}/research.md`를 생성합니다.
+
+### Phase 1B: SPEC Planning (필수)
+
+`manager-spec`이 프로젝트 문서를 분석하고 1~3개 SPEC 후보를 제안합니다. EARS 구조를 설계하고 기술 제약사항을 파악합니다.
+
+### Annotation Cycle (최대 6회)
+
+계획을 반복 수정하는 과정입니다:
+1. 사용자가 plan.md를 검토하고 인라인 노트 추가
+2. `manager-spec`이 노트를 반영하여 업데이트
+3. 승인 / 수정 / 드래프트 저장 / 취소
+
+<Callout type="warning">
+Annotation Cycle 동안에는 코드 구현이 금지됩니다.
+</Callout>
+
+### Phase 2: SPEC 문서 생성
+
+3개 파일이 동시에 생성됩니다:
+
+| 파일 | 내용 |
+|------|------|
+| `spec.md` | YAML 프론트매터 + EARS 요구사항 |
+| `plan.md` | 기술 스택, 작업 분해, 리스크 |
+| `acceptance.md` | Given/When/Then 인수 조건 (최소 2개) |
+
+### Phase 2.5: GitHub Issue 생성 (조건부)
+
+`--no-issue` 플래그가 없으면 SPEC ↔ Issue 양방향 링크를 자동 생성합니다.
+
+### Phase 3: Git 환경 설정 (조건부)
+
+`--worktree` → 워크트리 생성, `--branch` → 브랜치 생성, 플래그 없음 → 현재 브랜치 유지.
+
+## 완료 후 선택지
+
+- `/zec run SPEC-{ID}` — 구현 시작
+- 계획 수정 — Annotation Cycle 재진입
+- 추가 SPEC 생성

@@ -1,0 +1,118 @@
+# MX 태그 프로토콜
+
+`@MX` 태그는 코드에 직접 부착하는 **AI 컨텍스트 어노테이션**입니다. 개발 세션 간에 컨텍스트, 불변 조건, 위험 구간 정보를 전달합니다.
+
+import { Callout } from 'nextra/components'
+
+## 태그 문법
+
+```python
+# @MX:TAG_TYPE: [설명]
+# @MX:SUB_KEY: [보조 정보]
+```
+
+## 태그 종류
+
+### @MX:NOTE — 컨텍스트 전달
+
+매직 상수, 비즈니스 로직, 100줄 초과 함수에 부착합니다.
+
+```python
+# @MX:NOTE: 세금 계산은 부가세법 시행령 제52조 기준
+TAX_RATE = 0.1
+```
+
+### @MX:ANCHOR — 불변 계약
+
+`fan_in >= 3` (3곳 이상에서 호출)인 함수, 공개 API 경계, 외부 시스템 연동 지점에 부착합니다.
+
+```python
+# @MX:ANCHOR: user_service, admin_service, api_middleware에서 호출
+# @MX:REASON: 서명 변경 시 3개 모듈에 영향
+def verify_token(token: str) -> dict:
+    ...
+```
+
+<Callout type="warning">
+ANCHOR 태그는 절대 자동 삭제하지 않습니다. fan_in이 3 미만으로 떨어지면 NOTE로 강등 (보고서 필요).
+</Callout>
+
+### @MX:WARN — 위험 구간
+
+순환 복잡도 15 이상, 글로벌 상태 변경, if-branch 8개 이상에 부착합니다.
+
+```python
+# @MX:WARN: 복잡도 18, 리팩토링 권장
+# @MX:REASON: 중첩 조건문으로 인한 버그 위험
+def process_order(order):
+    ...
+```
+
+### @MX:TODO — 미완료 작업
+
+테스트 없는 공개 함수, 미구현 SPEC 요구사항에 부착합니다.
+
+```python
+# @MX:TODO: 단위 테스트 미작성
+def calculate_discount(user, items):
+    ...
+```
+
+## 보조 태그 (Sub-lines)
+
+| 태그 | 용도 | 필수 여부 |
+|------|------|----------|
+| `@MX:REASON` | WARN, ANCHOR의 이유 | WARN, ANCHOR에 필수 |
+| `@MX:SPEC` | 관련 SPEC 참조 | 선택 |
+| `@MX:LEGACY` | SPEC 없는 레거시 코드 | 선택 |
+| `@MX:TEST` | 관련 테스트 참조 | 선택 |
+| `@MX:PRIORITY` | 우선순위 (P1-P5) | 선택 |
+
+## 자동 부착 규칙
+
+| 조건 | 태그 |
+|------|------|
+| `fan_in >= 3` (3곳 이상에서 호출) | `@MX:ANCHOR` |
+| 순환 복잡도 >= 15 | `@MX:WARN` |
+| if-branch >= 8 | `@MX:WARN` |
+| 글로벌 상태 변경 | `@MX:WARN` |
+| 매직 상수 | `@MX:NOTE` |
+| 100줄 초과 exported 함수 | `@MX:NOTE` |
+| 테스트 없는 공개 함수 | `@MX:TODO` |
+
+## 태그 라이프사이클
+
+| 태그 | 생성 | 제거 |
+|------|------|------|
+| TODO | RED/ANALYZE 단계 | GREEN/IMPROVE 단계 (해결 시) |
+| WARN | 위험 감지 시 | 위험 제거 시 |
+| NOTE | 컨텍스트 필요 시 | 코드 삭제 시 |
+| ANCHOR | fan_in >= 3 | 절대 자동 삭제 불가 (NOTE로 강등만 가능) |
+
+## 파일별 제한
+
+`.zec/config/sections/mx.yaml`에서 설정:
+
+| 항목 | 기본값 |
+|------|--------|
+| `anchor_per_file` | 3 |
+| `warn_per_file` | 5 |
+
+## 언어별 주석 문법
+
+| 언어 | 접두사 |
+|------|--------|
+| Go, Java, TS, Rust, C/C++, Swift | `//` |
+| Python, Ruby, Elixir | `#` |
+| Haskell | `--` |
+
+<Callout type="info">
+MX 태그 설명의 언어는 `.zec/config/sections/language.yaml`의 `code_comments` 설정을 따릅니다.
+</Callout>
+
+## 관련 명령어
+
+- `/zec mx` — 코드베이스 스캔 + 태그 자동 부착
+- `/zec review` — 리뷰 시 MX 태그 컴플라이언스 검사
+- `/zec run` Phase 1.8 — 구현 전 MX 컨텍스트 스캔
+- `/zec run` Phase 2.9 — 구현 후 MX 태그 업데이트

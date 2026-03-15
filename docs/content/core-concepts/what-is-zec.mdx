@@ -1,0 +1,174 @@
+# ZEC 오케스트레이터란?
+
+ZEC는 Claude Code를 위한 **전략 오케스트레이터**입니다. 직접 코드를 작성하지 않고, 27개 전문 에이전트에게 작업을 위임하여 개발을 조율합니다.
+
+import { Callout } from 'nextra/components'
+
+<Callout type="warning">
+**핵심 원칙**: ZEC는 직접 코딩하지 않는다. 복잡한 작업은 반드시 전문 에이전트에게 위임한다.
+</Callout>
+
+## Request Processing Pipeline
+
+모든 요청은 4단계 파이프라인을 거칩니다:
+
+```
+사용자 요청
+    │
+    ▼
+┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐
+│ Analyze  │───▶│  Route   │───▶│ Execute  │───▶│ Report  │
+│ 복잡도   │    │ 에이전트 │    │ 위임실행 │    │ 결과보고 │
+│ 평가     │    │ 선택     │    │          │    │         │
+└─────────┘    └─────────┘    └─────────┘    └─────────┘
+```
+
+| 단계 | 역할 | 동작 |
+|------|------|------|
+| **Analyze** | 요청 분석 | 복잡도 평가, 기술 키워드 감지 |
+| **Route** | 에이전트 라우팅 | 서브커맨드 매칭 → SPEC-ID 감지 → 자연어 분류 |
+| **Execute** | 위임 실행 | 선택된 에이전트에게 작업 위임 |
+| **Report** | 결과 보고 | 사용자 언어로 결과 통합 보고 |
+
+## Intent Router — 라우팅 우선순위
+
+ZEC는 사용자 입력을 4단계 우선순위로 분석합니다:
+
+### Priority 1: 명시적 서브커맨드
+
+첫 번째 단어가 알려진 명령어와 일치하면 즉시 라우팅합니다:
+
+| 서브커맨드 | 별칭 | 라우팅 대상 |
+|-----------|------|------------|
+| `plan` | spec | SPEC 문서 생성 |
+| `run` | impl | DDD/TDD 구현 |
+| `sync` | docs, pr | 문서 동기화 + PR |
+| `fix` | - | 에러 자동 수정 |
+| `loop` | - | 반복 수정 |
+| `review` | code-review | 코드 리뷰 |
+| `mx` | - | MX 태그 스캔 |
+| `coverage` | cov | 커버리지 분석 |
+| `e2e` | e2e-test | E2E 테스트 |
+| `clean` | dead-code | 미사용 코드 제거 |
+| `codemaps` | - | 아키텍처 문서 |
+| `project` | init | 프로젝트 문서 |
+| `feedback` | fb, bug, issue | GitHub 이슈 생성 |
+| `context` | ctx, memory | 컨텍스트 메모리 |
+
+### Priority 2: SPEC-ID 감지
+
+`SPEC-AUTH-001` 같은 패턴이 발견되면 자동으로 `run` 워크플로우로 라우팅합니다.
+
+### Priority 3: 자연어 분류
+
+| 감지 패턴 | 라우팅 대상 |
+|----------|------------|
+| "설계해줘", "계획 세워줘" | `plan` |
+| "에러 고쳐줘", "빌드 실패" | `fix` |
+| "계속 고쳐", "다 될 때까지" | `loop` |
+| "문서 만들어줘", "PR 생성" | `sync` |
+| "만들어줘", "구현해줘" | `zec` (전체 파이프라인) |
+
+### Priority 4: 기본 동작
+
+의도가 불분명하면 사용자에게 질문하여 확인합니다.
+
+## 에이전트 카탈로그 (27개)
+
+### 에이전트 선택 의사결정 트리
+
+```
+사용자 요청
+    │
+    ├─ 읽기 전용 탐색? ──────────▶ Explore (haiku)
+    │
+    ├─ 계획/요구사항? ──────────▶ spec, strategist, critic (opus)
+    │
+    ├─ 구현 작업? ──────────────▶ executor, deep-executor, backend, frontend (sonnet/opus)
+    │
+    ├─ 품질/리뷰? ──────────────▶ quality, security, tester, verifier (sonnet)
+    │
+    ├─ 지원 작업? ──────────────▶ debugger, build-fixer, docs, git (sonnet/haiku)
+    │
+    └─ 팀 모드? ────────────────▶ team-reader, team-coder, team-tester, team-designer (sonnet)
+```
+
+### 레인별 에이전트 분류
+
+| 레인 | 에이전트 | 모델 | 역할 |
+|------|---------|------|------|
+| **Planning** | `spec` | opus | EARS 형식 요구사항 문서 작성 |
+| | `strategist` | opus | 아키텍처 설계, 기술 평가 |
+| | `critic` | opus | 계획 비판, 리스크 식별 |
+| **Implementation** | `executor` | sonnet | 일반 코드 구현, 리팩토링 |
+| | `deep-executor` | opus | 복잡한 자율 구현 |
+| | `backend` | sonnet | API, DB, 서버 구현 |
+| | `frontend` | sonnet | UI, 컴포넌트, 상태 관리 |
+| | `debugger` | sonnet | 근본 원인 분석, 버그 추적 |
+| **Quality** | `quality` | sonnet | 코드 품질, 안티패턴 검출 |
+| | `security` | sonnet | OWASP, 취약점 분석 |
+| | `tester` | sonnet | 테스트 전략, 커버리지 |
+| | `verifier` | sonnet | 완료 검증, 증거 수집 |
+| **Support** | `docs` | sonnet | 문서 작성, 마이그레이션 노트 |
+| | `git` | haiku | 커밋, 브랜치, PR 관리 |
+| | `build-fixer` | sonnet | 빌드/타입 에러 수정 |
+| | `refactorer` | sonnet | 대규모 코드 변환 |
+| **Builder** | `builder-agent` | sonnet | 에이전트 정의 생성 |
+| | `builder-skill` | sonnet | 스킬 정의 생성 |
+| | `builder-plugin` | sonnet | 플러그인 생성 |
+| **Team** | `team-reader` | sonnet | 코드베이스 분석 |
+| | `team-coder` | sonnet | 구현 담당 |
+| | `team-tester` | sonnet | 테스트 작성 |
+| | `team-designer` | sonnet | UI/UX 디자인 |
+| | `team-validator` | sonnet | 품질 검증 |
+
+## 모델 라우팅
+
+ZEC는 작업 복잡도에 따라 적절한 모델을 자동 선택합니다:
+
+| 복잡도 | 모델 | 비용 | 예시 |
+|--------|------|------|------|
+| **Simple** | haiku | 최저 | 파일 탐색, 빠른 조회, git 작업 |
+| **Standard** | sonnet | 중간 | 구현, 디버깅, 리뷰, 테스트 |
+| **Complex** | opus | 최고 | 아키텍처 설계, 계획, 보안 분석 |
+
+설정 위치: `.zec/config/sections/execution.yaml`
+
+```yaml
+execution:
+  model_routing:
+    simple: haiku
+    standard: sonnet
+    complex: opus
+```
+
+## 실행 모드
+
+ZEC는 복잡도에 따라 실행 모드를 자동 선택합니다:
+
+| 조건 | 실행 모드 |
+|------|-----------|
+| 도메인 3개 이상 | Team 모드 (병렬) |
+| 파일 10개 이상 | Team 모드 (병렬) |
+| 복잡도 점수 7 이상 | Team 모드 (병렬) |
+| 그 외 | Sub-agent 모드 (순차) |
+
+강제 지정: `--team` (병렬 강제) 또는 `--solo` (순차 강제) 플래그 사용 가능.
+
+## 핵심 규칙 (Constitution)
+
+ZEC의 모든 동작을 지배하는 불변 규칙입니다:
+
+1. **위임 원칙**: 복잡한 작업은 반드시 전문 에이전트에게 위임
+2. **언어 규칙**: 사용자 응답은 반드시 사용자의 대화 언어로
+3. **병렬 실행**: 독립적인 작업은 병렬로 실행 (최대 10개)
+4. **품질 게이트**: 모든 코드 변경은 TRUST 5 검증 통과 필수
+5. **보안 경계**: 시크릿 커밋 금지, 외부 입력 검증, OWASP 준수
+6. **에러 핸들링**: 최대 3회 재시도 후 사용자 개입 요청
+7. **도구 우선순위**: 전용 도구(Read, Edit, Grep 등)를 일반 명령어보다 우선 사용
+
+## 다음 단계
+
+- [SPEC 기반 개발](/core-concepts/spec-based-dev) — Plan 단계의 요구사항 정의 방법
+- [개발 방법론](/core-concepts/ddd-tdd) — Run 단계의 DDD/TDD 사이클
+- [TRUST 5 품질 게이트](/core-concepts/trust-5) — 품질 검증 기준

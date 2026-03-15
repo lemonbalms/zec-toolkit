@@ -1,0 +1,130 @@
+# 빠른 시작
+
+설치와 초기 설정을 마친 후, 5분 안에 ZEC 워크플로우를 체험합니다.
+
+import { Callout, Steps } from 'nextra/components'
+
+<Callout>
+이 가이드는 [설치](/getting-started/installation)와 [초기 설정](/getting-started/init-wizard)을 완료한 상태를 전제합니다.
+</Callout>
+
+## 핵심 워크플로우: Plan → Run → Review
+
+ZEC의 기본 개발 사이클은 세 단계입니다:
+
+```
+/zec plan  →  /zec run  →  /zec review
+  (계획)        (실행)        (검증)
+```
+
+<Steps>
+
+### Plan — 요구사항 정의
+
+Claude Code에서 다음과 같이 실행합니다:
+
+```
+> /zec plan 사용자 인증 API 추가
+```
+
+ZEC 오케스트레이터가 `spec` 에이전트에게 위임하여:
+- EARS 형식의 요구사항 문서 (SPEC) 생성
+- 인수 조건 정의
+- `.zec/specs/` 디렉토리에 SPEC 파일 저장
+
+생성된 SPEC 예시:
+
+```
+SPEC-AUTH-001: 사용자 인증 API
+├── REQ-1: JWT 토큰 발행 (EARS: When ~ the system shall ~)
+├── REQ-2: 토큰 검증 미들웨어
+├── REQ-3: 로그인/로그아웃 엔드포인트
+└── 인수 조건: 85%+ 테스트 커버리지, OWASP 준수
+```
+
+### Run — 구현
+
+SPEC을 기반으로 구현을 실행합니다:
+
+```
+> /zec run
+```
+
+ZEC가 SPEC을 읽고 적절한 에이전트에게 위임합니다:
+- `executor` (sonnet) — 일반 구현
+- `deep-executor` (opus) — 복잡한 구현
+- `backend` / `frontend` — 도메인 특화 구현
+
+개발 방법론에 따라:
+- **DDD 모드**: 기존 코드 분석 → 특성 테스트 → 안전한 리팩토링
+- **TDD 모드**: 실패하는 테스트 → 구현 → 리팩토링
+
+### Review — 품질 검증
+
+구현이 완료되면 4가지 관점에서 리뷰합니다:
+
+```
+> /zec review
+```
+
+| 관점 | 에이전트 | 검사 항목 |
+|------|----------|-----------|
+| 품질 | `quality` | 코드 품질, 안티패턴, 네이밍 |
+| 보안 | `security` | OWASP, XSS, 인젝션 |
+| 테스트 | `tester` | 커버리지, 엣지 케이스 |
+| 검증 | `verifier` | SPEC 인수 조건 충족 여부 |
+
+</Steps>
+
+## 기타 자주 쓰는 명령어
+
+### 동기화 (문서 + PR)
+
+```
+> /zec sync
+```
+
+변경사항을 문서화하고 Pull Request를 생성합니다.
+
+### 빌드 에러 수정
+
+```
+> /zec fix
+```
+
+타입 에러, 린트 실패, 의존성 문제를 자동 수정합니다.
+
+### 코드 정리
+
+```
+> /zec clean
+```
+
+사용하지 않는 코드, import, 파일을 정리합니다.
+
+### 반복 실행
+
+```
+> /zec loop
+```
+
+에러가 모두 해결될 때까지 반복 실행합니다.
+
+## 에이전트 라우팅 예시
+
+ZEC 오케스트레이터는 요청 내용을 분석하여 적절한 에이전트에게 자동 위임합니다:
+
+| 요청 | 라우팅되는 에이전트 | 모델 |
+|------|---------------------|------|
+| "로그인 API 만들어줘" | `backend` | sonnet |
+| "이 버그 원인 찾아줘" | `debugger` | sonnet |
+| "전체 아키텍처 설계해줘" | `strategist` | opus |
+| "빌드 에러 고쳐줘" | `build-fixer` | sonnet |
+| "보안 취약점 검사해줘" | `security` | sonnet |
+| "PR 만들어줘" | `git` | haiku |
+
+## 다음 단계
+
+- [ZEC 오케스트레이터란?](/core-concepts/what-is-zec) — 에이전트 위임 원칙 이해
+- [워크플로우 명령어](/workflow-commands/zec-plan) — 각 명령어 상세 가이드
+- [Harness 스킬 카탈로그](/skills-agents/harness-catalog) — 9개 스킬 활용법

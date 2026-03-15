@@ -1,0 +1,6 @@
+{
+  "zec-plan": "/zec plan",
+  "zec-run": "/zec run",
+  "zec-sync": "/zec sync",
+  "zec-utilities": "유틸리티 (fix, loop, clean, mx)"
+}

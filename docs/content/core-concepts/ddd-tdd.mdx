@@ -1,0 +1,179 @@
+# 개발 방법론 (DDD/TDD)
+
+ZEC는 두 가지 개발 방법론을 지원합니다. **DDD**(Domain-Driven Development)는 기존 코드를 안전하게 개선하고, **TDD**(Test-Driven Development)는 새 기능을 테스트 우선으로 구현합니다.
+
+import { Callout } from 'nextra/components'
+
+## 방법론 선택
+
+`.zec/config/sections/quality.yaml`에서 설정합니다:
+
+```yaml filename=".zec/config/sections/quality.yaml"
+quality:
+  development_mode: ddd    # "ddd" 또는 "tdd"
+  test_coverage_target: 85
+  enforce_quality: true
+```
+
+| 상황 | 권장 방법론 |
+|------|------------|
+| 기존 코드 수정/리팩토링 | **DDD** |
+| 테스트 없는 레거시 코드 | **DDD** |
+| 완전히 새로운 기능 | **TDD** |
+| 그린필드 프로젝트 | **TDD** |
+| 버그 수정 | **DDD** (재현 테스트 → 수정) |
+
+## DDD: ANALYZE-PRESERVE-IMPROVE
+
+기존 코드를 안전하게 개선하는 3단계 사이클입니다.
+
+```
+┌──────────┐    ┌──────────┐    ┌──────────┐
+│ ANALYZE  │───▶│ PRESERVE │───▶│ IMPROVE  │
+│ 분석     │    │ 보존     │    │ 개선     │
+│          │◀───│          │◀───│          │
+└──────────┘    └──────────┘    └──────────┘
+```
+
+### ANALYZE (분석)
+
+기존 코드의 동작과 구조를 깊이 이해합니다:
+- 코드 실행 경로 추적
+- 의존성 그래프 분석
+- 암묵적 계약 (implicit contracts) 식별
+- 사이드 이펙트 파악
+- `@MX:ANCHOR` 태그로 불변 계약 식별
+
+### PRESERVE (보존)
+
+기존 동작을 보호하는 특성 테스트(characterization test)를 작성합니다:
+- 현재 동작을 그대로 캡처하는 테스트
+- 변경 전 모든 기존 테스트 통과 확인
+- 커버리지가 부족한 코드 경로에 테스트 추가
+- `@MX:TODO` 태그로 미테스트 함수 표시
+
+### IMPROVE (개선)
+
+특성 테스트의 보호 아래 안전하게 코드를 개선합니다:
+- 각 변환(transformation) 후 테스트 재실행
+- 동작 보존 여부 검증
+- 구조적 메트릭 비교 (복잡도, 중복 등)
+- `@MX:WARN` → 위험 패턴이 개선되면 태그 제거
+
+<Callout type="info">
+DDD의 핵심: 먼저 특성 테스트로 현재 동작을 "잠그고", 그 안전망 위에서 개선합니다. 테스트 없이 리팩토링하면 안 됩니다.
+</Callout>
+
+### DDD 에이전트: `manager-ddd`
+
+DDD 사이클을 실행하는 전문 에이전트입니다:
+
+| 입력 | 출력 |
+|------|------|
+| SPEC + 실행 계획 | 수정된 파일 목록 |
+| 프로젝트 구조/기술 컨텍스트 | 특성 테스트 목록 |
+| MX 컨텍스트 맵 | 테스트 결과 (전체 통과) |
+| | 동작 보존 확인 플래그 |
+| | 구현 이탈 보고서 |
+
+## TDD: RED-GREEN-REFACTOR
+
+새 기능을 테스트 우선으로 구현하는 3단계 사이클입니다.
+
+```
+┌──────────┐    ┌──────────┐    ┌──────────┐
+│   RED    │───▶│  GREEN   │───▶│ REFACTOR │
+│ 실패하는 │    │ 통과하는 │    │ 구조     │
+│ 테스트   │    │ 최소구현 │    │ 개선     │
+│          │◀───│          │◀───│          │
+└──────────┘    └──────────┘    └──────────┘
+```
+
+### RED (빨강)
+
+구현하려는 기능의 **실패하는 테스트**를 먼저 작성합니다:
+- SPEC 인수 조건을 테스트로 변환
+- 아직 구현되지 않았으므로 테스트가 실패해야 함
+- `@MX:TODO` 태그로 미구현 함수 표시
+
+### GREEN (초록)
+
+테스트를 **최소한의 코드로 통과**시킵니다:
+- 가장 단순한 구현으로 시작
+- "동작하게 만들기"에 집중
+- 커밋당 최소 80% 커버리지 (85% 권장)
+- `@MX:NOTE` 태그로 복잡한 로직 설명
+
+### REFACTOR (리팩토링)
+
+테스트가 통과하는 상태에서 **코드 품질을 개선**합니다:
+- 중복 제거
+- 명확한 네이밍
+- 패턴 통일
+- 테스트가 계속 통과하는지 확인
+
+### TDD 에이전트: `manager-tdd`
+
+| 입력 | 출력 |
+|------|------|
+| SPEC + 실행 계획 | 생성된 파일 목록 |
+| 프로젝트 구조/기술 컨텍스트 | 사양 테스트 목록 |
+| | 테스트 결과 (전체 통과) |
+| | 커버리지 비율 |
+| | 리팩토링 개선 목록 |
+
+## Run 워크플로우에서의 위치
+
+`/zec run`의 전체 흐름에서 DDD/TDD는 Phase 2에 해당합니다:
+
+```
+Phase 1:   Analysis & Planning (manager-strategy)
+Phase 1.5: Task Decomposition
+Phase 1.6: Acceptance Criteria → TaskList (실패 체크리스트)
+Phase 1.7: File Structure Scaffolding
+Phase 1.8: MX Context Scan
+    │
+    ▼
+Phase 2:   Implementation ◀── DDD 또는 TDD 사이클 실행
+    │
+    ▼
+Phase 2.5: Quality Validation (TRUST 5)
+Phase 2.8: Post-Implementation Review
+Phase 2.9: MX Tag Update
+Phase 2.10: Simplify Pass
+Phase 3:   Git Operations
+Phase 4:   Completion
+```
+
+<Callout>
+Phase 1.6에서 모든 인수 조건이 **pending** 상태의 TaskList로 등록됩니다. 구현이 진행되면서 하나씩 **completed**로 전환되는 "실패하는 체크리스트" 패턴입니다.
+</Callout>
+
+## Batch Mode
+
+작업이 많을 때 자동으로 병렬 구현으로 전환됩니다:
+
+| 조건 | 임계값 |
+|------|--------|
+| 태스크 수 | 5개 이상 |
+| 예상 파일 변경 | 10개 이상 |
+| 독립 태스크 수 | 3개 이상 |
+
+하나라도 충족하면 각 태스크를 **독립 워크트리에서 병렬 실행**합니다.
+
+## 구현 이탈 추적
+
+DDD/TDD 어느 모드든, 에이전트는 원래 계획 대비 이탈 사항을 추적합니다:
+
+- `planned_files` vs `actual_files`
+- 추가된 기능 (SPEC 범위 외)
+- 범위 변경 사항
+- 새로 추가된 의존성
+- 새로 생성된 디렉토리
+
+이 이탈 데이터는 `/zec sync`에서 SPEC 문서 업데이트와 프로젝트 문서 동기화에 사용됩니다.
+
+## 다음 단계
+
+- [TRUST 5 품질 게이트](/core-concepts/trust-5) — 구현 후 품질 검증 기준
+- [/zec run 상세 가이드](/workflow-commands/zec-run) — 명령어 옵션과 플래그

@@ -1,0 +1,213 @@
+# TRUST 5 품질 게이트
+
+TRUST 5는 ZEC의 **품질 검증 프레임워크**입니다. 모든 코드 변경은 5가지 관점에서 검증을 통과해야 합니다.
+
+import { Callout } from 'nextra/components'
+
+## 5가지 품질 기둥
+
+```
+T ─── Tested     (테스트됨)
+R ─── Readable   (읽기 쉬움)
+U ─── Unified    (통일됨)
+S ─── Secured    (안전함)
+T ─── Trackable  (추적 가능)
+```
+
+---
+
+## T — Tested (테스트됨)
+
+코드가 충분한 테스트로 보호되는가?
+
+| 항목 | 기준 |
+|------|------|
+| **커버리지** | 85% 이상 (설정: `quality.yaml`) |
+| **기존 코드** | 특성 테스트 (characterization test) 필수 |
+| **새 코드** | 사양 테스트 (specification test) 필수 |
+| **커밋당** | 최소 80% 커버리지 |
+| **엣지 케이스** | 인수 조건의 Given/When/Then 시나리오 충족 |
+
+### DDD 모드에서의 Tested
+
+- ANALYZE → 기존 테스트 확인
+- PRESERVE → 특성 테스트로 현재 동작 보존
+- IMPROVE → 모든 테스트 통과 확인 후 변경
+
+### TDD 모드에서의 Tested
+
+- RED → 실패하는 테스트 먼저 작성
+- GREEN → 테스트 통과하는 최소 구현
+- REFACTOR → 테스트 유지하며 품질 개선
+
+<Callout type="warning">
+커버리지가 목표 미달이면 `/zec run`이 자동으로 `/zec coverage` 워크플로우를 실행하여 누락된 테스트를 생성합니다.
+</Callout>
+
+---
+
+## R — Readable (읽기 쉬움)
+
+코드가 명확하고 이해하기 쉬운가?
+
+| 항목 | 기준 |
+|------|------|
+| **네이밍** | 의도를 드러내는 명확한 이름 |
+| **함수 크기** | 50줄 이하 (초과 시 분할 권장) |
+| **파일 크기** | 500줄 이하 (초과 시 분해 권장) |
+| **복잡도** | 순환 복잡도 10 이하 |
+| **중첩 깊이** | 4레벨 이하 |
+| **주석** | 코드 주석은 `language.yaml`의 `code_comments` 언어로 |
+| **문서** | 공개 API에 문서 포함 |
+
+### 확장 품질 검사
+
+`/zec run` Phase 2.5에서 자동 수행:
+- **함수 크기 분석**: 50줄 초과 → 분할 제안
+- **파일 크기 분석**: 500줄 초과 → 분해 제안
+- **순환 복잡도**: 10 초과 → 리팩토링 제안
+- **중첩 깊이**: 4레벨 초과 → 플래튼 제안
+
+---
+
+## U — Unified (통일됨)
+
+코드가 프로젝트 전체에서 일관된 패턴을 따르는가?
+
+| 항목 | 기준 |
+|------|------|
+| **스타일** | 프로젝트 포매터 규칙 준수 (ruff/black, prettier 등) |
+| **아키텍처** | 기존 패턴과 일관된 구조 |
+| **패턴** | 동일한 문제에 동일한 해결 방식 |
+| **네이밍 규칙** | 프로젝트 전체에서 통일된 명명 |
+
+### 코드 재사용 검사
+
+- **중복 감지**: 유사한 코드 블록 발견 시 통합 제안
+- **라이브러리 겹침**: 동일 기능의 다른 라이브러리 사용 경고
+- **패턴 통합**: 산발적 패턴을 통일된 패턴으로 정리
+- **공유 추상화**: 재사용 가능한 추상화 기회 식별
+
+---
+
+## S — Secured (안전함)
+
+코드에 보안 취약점이 없는가?
+
+| 항목 | 기준 |
+|------|------|
+| **OWASP** | Top 10 취약점 검사 |
+| **입력 검증** | 모든 외부 입력 유효성 검증 |
+| **인증/인가** | 적절한 접근 제어 |
+| **시크릿** | API 키, 비밀번호 코드에 미포함 |
+| **인젝션** | SQL, 명령어, XSS, CSRF 방어 |
+| **의존성** | 알려진 취약점 확인 |
+
+### `/zec review` 보안 관점
+
+`/zec review --security` 실행 시 심층 보안 분석:
+- OWASP Top 10 컴플라이언스 체크
+- 시크릿 노출 (API 키, 토큰)
+- 인젝션 리스크 (SQL, 명령어, XSS, CSRF)
+- 인증/인가 로직 검증
+- 의존성 취약점 검사
+
+---
+
+## T — Trackable (추적 가능)
+
+변경 이력을 명확하게 추적할 수 있는가?
+
+| 항목 | 기준 |
+|------|------|
+| **커밋 메시지** | Conventional Commits 형식 |
+| **이슈 참조** | `Fixes #N` 으로 Issue 연결 |
+| **SPEC 참조** | `SPEC: SPEC-XXX-NNN` 커밋 메시지 포함 |
+| **MX 어노테이션** | 코드 레벨 컨텍스트 태그 |
+
+### Conventional Commits 형식
+
+```
+feat(auth): JWT 토큰 발행 엔드포인트 추가
+
+SPEC: SPEC-AUTH-001
+Fixes #42
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+```
+
+### @MX 태그 — 코드 레벨 추적성
+
+코드에 직접 붙이는 AI 컨텍스트 어노테이션:
+
+| 태그 | 용도 | 자동 부착 조건 |
+|------|------|--------------|
+| `@MX:NOTE` | 컨텍스트, 비즈니스 로직 설명 | 매직 상수, 100줄 초과 함수 |
+| `@MX:ANCHOR` | 불변 계약 (변경 금지 지점) | fan_in >= 3 (3곳 이상에서 호출) |
+| `@MX:WARN` | 위험 구간 경고 | 복잡도 >= 15, 글로벌 상태 변경 |
+| `@MX:TODO` | 미완료 작업 | 테스트 없는 공개 함수 |
+| `@MX:LEGACY` | SPEC 없는 레거시 코드 | SPEC 미연결 코드 |
+
+```python
+# @MX:ANCHOR: 3곳에서 호출되는 핵심 인증 함수
+# @MX:REASON: user_service, admin_service, api_middleware에서 사용
+def verify_token(token: str) -> dict:
+    ...
+```
+
+<Callout type="info">
+MX 태그는 에이전트가 자율적으로 추가/수정/삭제합니다. 사람의 승인 없이 자동 관리되며, 변경 보고서로 알림합니다.
+</Callout>
+
+---
+
+## 품질 게이트 동작
+
+### `/zec run` 에서의 TRUST 5
+
+Phase 2.5 (Quality Validation)에서 `manager-quality` 에이전트가 5개 기둥 전부를 검증합니다:
+
+| 상태 | 동작 |
+|------|------|
+| **PASS** | Phase 3 (Git) 진행 |
+| **WARNING** | Phase 2.8 리뷰 후 진행 |
+| **CRITICAL** | 사용자에게 보고, Phase 2로 복귀 |
+
+### LSP Quality Gates
+
+추가로 LSP 기반 정적 분석도 적용됩니다:
+
+| 항목 | 허용치 |
+|------|--------|
+| LSP 에러 | 0개 |
+| 타입 에러 | 0개 |
+| 린트 에러 | 0개 |
+| 베이스라인 대비 회귀 | 불허 |
+
+### `/zec review` 에서의 TRUST 5
+
+4가지 관점(Security, Performance, Quality, UX)에서 리뷰하고 TRUST 5 점수를 산출합니다:
+
+```markdown
+## Overall Assessment
+- Security: PASS/FAIL
+- Performance: PASS/WARN
+- Quality: PASS/WARN
+- UX: PASS/WARN
+- TRUST 5 Score: 4/5
+```
+
+## 설정
+
+```yaml filename=".zec/config/sections/quality.yaml"
+quality:
+  development_mode: ddd
+  test_coverage_target: 85   # 커버리지 목표 (%)
+  enforce_quality: true       # 품질 게이트 강제 적용
+```
+
+## 다음 단계
+
+- [/zec review](/quality-commands/zec-review) — 코드 리뷰 명령어 상세
+- [/zec coverage](/quality-commands/zec-coverage) — 커버리지 분석 명령어
+- [MX 태그 프로토콜](/skills-agents/mx-tags) — @MX 태그 상세 규칙

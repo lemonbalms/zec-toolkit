@@ -1,0 +1,129 @@
+# 설치
+
+ZEC Toolkit을 Claude Code에 설치하는 방법을 안내합니다.
+
+import { Callout, Steps, Tabs } from 'nextra/components'
+
+## 사전 요구사항
+
+| 항목 | 요구사항 | 확인 방법 |
+|------|----------|-----------|
+| **Claude Code** | 최신 버전 | `claude --version` |
+| **Git** | 2.x 이상 | `git --version` |
+| **Node.js** | 18 이상 (선택) | `node --version` |
+
+<Callout type="warning">
+Claude Code가 설치되어 있지 않다면 먼저 [Claude Code 공식 문서](https://docs.anthropic.com/en/docs/claude-code)를 참고하여 설치하세요.
+</Callout>
+
+## 설치 방법
+
+<Steps>
+
+### 플러그인 추가
+
+```bash
+claude plugin add lemonbalms/zec-toolkit
+```
+
+### 설치 확인
+
+Claude Code를 실행하고 `/zec` 명령어가 인식되는지 확인합니다:
+
+```
+> /zec
+```
+
+ZEC 오케스트레이터가 응답하면 설치가 완료된 것입니다.
+
+### 프로젝트 초기 설정
+
+설치 후 프로젝트 디렉토리에서 초기 설정을 진행합니다. 자세한 내용은 [초기 설정](/getting-started/init-wizard) 문서를 참고하세요.
+
+</Steps>
+
+## 수동 설치 (소스)
+
+플러그인 저장소를 직접 클론하여 설치할 수도 있습니다:
+
+```bash
+# 저장소 클론
+git clone https://github.com/lemonbalms/zec-toolkit.git
+
+# Claude Code 설정에서 플러그인 경로 지정
+claude plugin add ./zec-toolkit
+```
+
+## 포함되는 항목
+
+설치 시 다음이 자동으로 Claude Code에 등록됩니다:
+
+| 항목 | 수량 | 설명 |
+|------|------|------|
+| **Skills** | 9개 | ZEC 오케스트레이터 + Harness 스킬 8종 |
+| **Rules** | 6개 | 핵심 원칙, 코딩 표준, 워크플로우 규칙 |
+| **Templates** | 15개 | `.zec/config/` YAML 설정 파일 |
+
+<Callout type="info">
+Rules는 플러그인 설치 시 자동으로 활성화됩니다. Skills는 해당 작업 컨텍스트에서 자동 트리거되거나 `/zec` 명령으로 수동 실행할 수 있습니다.
+</Callout>
+
+## 다른 플러그인과의 공존
+
+ZEC Toolkit은 네이밍과 구조를 분리하여 다른 플러그인과 충돌 없이 사용할 수 있습니다:
+
+| 플러그인 | 역할 | 충돌 여부 |
+|----------|------|-----------|
+| oh-my-claudecode | 에이전트 실행 인프라 | 충돌 없음 |
+| claude-code-harness | 스킬 원본 저장소 | Harness 스킬 중복 (ZEC 버전 우선) |
+| 기타 커스텀 플러그인 | - | `zec-` 접두사로 분리 |
+
+## 업데이트
+
+```bash
+# 최신 버전으로 업데이트
+claude plugin update lemonbalms/zec-toolkit
+```
+
+## 제거
+
+```bash
+# 플러그인 제거
+claude plugin remove lemonbalms/zec-toolkit
+```
+
+<Callout type="warning">
+제거 시 프로젝트의 `.zec/` 디렉토리는 삭제되지 않습니다. 설정을 완전히 제거하려면 수동으로 삭제하세요.
+</Callout>
+
+## 문제 해결
+
+### 명령어를 찾을 수 없음
+
+```
+> /zec
+Error: Unknown command
+```
+
+플러그인이 올바르게 설치되었는지 확인합니다:
+
+```bash
+claude plugin list
+```
+
+목록에 `zec-toolkit`이 없다면 재설치합니다.
+
+### 스킬이 로드되지 않음
+
+Skills 디렉토리 경로가 `plugin.json`에 올바르게 설정되어 있는지 확인합니다:
+
+```json
+{
+  "skills": "./skills/"
+}
+```
+
+## 다음 단계
+
+- [초기 설정](/getting-started/init-wizard) — 프로젝트별 `.zec/config/` 구성
+- [빠른 시작](/getting-started/quickstart) — 첫 워크플로우 실행

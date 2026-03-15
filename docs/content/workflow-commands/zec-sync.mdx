@@ -1,0 +1,40 @@
+# /zec sync
+
+코드 변경사항을 문서에 반영하고 Pull Request를 생성합니다. Plan-Run-Sync의 세 번째 단계입니다.
+
+## 사용법
+
+```bash
+/zec sync                    # 자동 동기화
+/zec sync --merge            # 머지 커밋 포함
+/zec sync --skip-mx          # MX 태그 검사 건너뛰기
+```
+
+## 에이전트
+
+| 에이전트 | 모델 | 역할 |
+|---------|------|------|
+| `manager-docs` | sonnet | 문서 동기화 |
+| `manager-quality` | sonnet | 품질 최종 검증 |
+| `manager-git` | haiku | PR 생성 |
+
+## 동작 모드
+
+| 모드 | 설명 |
+|------|------|
+| `auto` | 변경사항 자동 감지 후 동기화 |
+| `force` | 모든 문서 강제 재생성 |
+| `status` | 동기화 상태만 확인 |
+| `project` | 프로젝트 문서만 업데이트 |
+
+## 워크플로우
+
+1. **변경 감지**: git diff로 수정된 파일 목록 수집
+2. **SPEC 업데이트**: 구현 이탈 보고서 기반으로 SPEC 문서 갱신
+3. **프로젝트 문서 동기화**: structure.md, tech.md 업데이트
+4. **MX 태그 검사**: 누락/오래된 태그 확인
+5. **PR 생성**: Conventional Commits + `Fixes #N`
+
+## SPEC ↔ Issue 연결
+
+SPEC 메타데이터에 `issue_number`가 있으면 PR에 `Fixes #{N}`이 포함되어, 머지 시 Issue가 자동 닫힙니다.

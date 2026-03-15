@@ -1,0 +1,66 @@
+# /zec review
+
+4가지 관점에서 코드를 분석하는 멀티 퍼스펙티브 코드 리뷰입니다.
+
+## 사용법
+
+```bash
+/zec review                          # 최근 커밋 리뷰
+/zec review --staged                 # staged 변경만
+/zec review --branch main            # main 대비 비교
+/zec review --security               # 보안 집중 리뷰
+/zec review --file src/auth.py       # 특정 파일만
+/zec review --team                   # 팀 모드 (4명 병렬)
+```
+
+## 4가지 리뷰 관점
+
+| 관점 | 검사 항목 |
+|------|----------|
+| **Security** | OWASP Top 10, 입력 검증, 인증/인가, 시크릿 노출, 인젝션 |
+| **Performance** | 알고리즘 복잡도, N+1 쿼리, 메모리 누수, 캐싱, 번들 크기 |
+| **Quality** | TRUST 5 준수, 네이밍, 에러 핸들링, 테스트 커버리지, 패턴 일관성 |
+| **UX** | 사용자 플로우, 에러 상태, 접근성(WCAG), 로딩 상태, 브레이킹 체인지 |
+
+## 에이전트
+
+| 모드 | 에이전트 |
+|------|---------|
+| 기본 (순차) | `manager-quality` (4개 관점 순차 분석) |
+| `--security` | `expert-security` (보안 심층 분석) |
+| `--team` | 4명 리뷰어 병렬 실행 |
+
+## 리뷰 보고서 형식
+
+```markdown
+## Code Review Report
+
+### Critical Issues (must fix)
+- [SECURITY] auth.py:42: SQL 인젝션 위험
+
+### Warnings (should fix)
+- [QUALITY] api.py:15: 중복 코드 발견
+
+### Suggestions (nice to have)
+- [PERFORMANCE] db.py:88: 캐싱 적용 가능
+
+### MX Tag Compliance
+- Missing: 3, Outdated: 1, Compliant: 8/12
+
+### Overall Assessment
+- TRUST 5 Score: 4/5
+```
+
+## MX 태그 컴플라이언스
+
+리뷰 시 변경된 파일의 `@MX` 태그도 검사합니다:
+- 새 exported 함수 → `@MX:NOTE` 또는 `@MX:ANCHOR` 필요
+- `fan_in >= 3` → `@MX:ANCHOR` 필수
+- 위험 패턴 → `@MX:WARN` 권장
+
+## 완료 후 선택지
+
+- **Auto-fix**: `/zec fix`로 Level 1-2 이슈 자동 수정
+- **Create fix tasks**: 각 발견 항목을 TaskList로 등록
+- **Export report**: `.zec/reports/`에 저장
+- **Dismiss**: 확인 후 종료

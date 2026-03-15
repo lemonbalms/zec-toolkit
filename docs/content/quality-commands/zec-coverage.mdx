@@ -1,0 +1,42 @@
+# /zec coverage
+
+테스트 커버리지를 분석하고 누락된 테스트를 자동 생성합니다.
+
+## 사용법
+
+```bash
+/zec coverage                        # 전체 커버리지 분석
+/zec coverage --target 90            # 목표 커버리지 지정
+/zec coverage --file src/auth.py     # 특정 파일만
+/zec coverage --report               # 보고서만 출력
+```
+
+## 에이전트
+
+`expert-testing` (sonnet) — 커버리지 분석 + 테스트 생성
+
+## 워크플로우
+
+1. **커버리지 측정**: 프로젝트 테스트 프레임워크로 현재 커버리지 측정
+2. **갭 분석**: 커버되지 않은 코드 경로, 함수, 브랜치 식별
+3. **테스트 생성**: 누락된 테스트를 자동 생성
+4. **재측정**: 생성된 테스트 실행 후 커버리지 재확인
+5. **보고**: 개선 전/후 비교 보고서 출력
+
+## 커버리지 목표
+
+`.zec/config/sections/quality.yaml`에서 설정:
+
+```yaml
+quality:
+  test_coverage_target: 85   # 기본 목표 85%
+```
+
+`/zec run` Phase 2.5에서 커버리지가 목표 미달이면 이 워크플로우가 자동으로 실행됩니다.
+
+## DDD/TDD 모드별 차이
+
+| 모드 | 테스트 유형 |
+|------|-----------|
+| **DDD** | 특성 테스트 (characterization test) — 기존 동작 캡처 |
+| **TDD** | 사양 테스트 (specification test) — 기대 동작 정의 |

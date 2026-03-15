@@ -1,0 +1,133 @@
+# 플러그인 구조 & 확장
+
+ZEC Toolkit의 Claude Code 플러그인 구조와 커스터마이징 방법입니다.
+
+import { FileTree } from 'nextra/components'
+
+## 플러그인 디렉토리 구조
+
+<FileTree>
+  <FileTree.Folder name="zec-toolkit/" defaultOpen>
+    <FileTree.Folder name=".claude-plugin/" defaultOpen>
+      <FileTree.File name="plugin.json" />
+    </FileTree.Folder>
+    <FileTree.File name="package.json" />
+    <FileTree.File name="README.md" />
+    <FileTree.Folder name="skills/" defaultOpen>
+      <FileTree.Folder name="zec/">
+        <FileTree.File name="SKILL.md" />
+      </FileTree.Folder>
+      <FileTree.Folder name="harness-fastapi/">
+        <FileTree.File name="skill.md" />
+      </FileTree.Folder>
+      <FileTree.File name="..." />
+    </FileTree.Folder>
+    <FileTree.Folder name="rules/" defaultOpen>
+      <FileTree.Folder name="core/" />
+      <FileTree.Folder name="development/" />
+      <FileTree.Folder name="workflow/" />
+    </FileTree.Folder>
+    <FileTree.Folder name="templates/" defaultOpen>
+      <FileTree.Folder name="zec-config/sections/" />
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
+
+## plugin.json
+
+플러그인 메타데이터와 진입점 설정:
+
+```json
+{
+  "name": "zec-toolkit",
+  "version": "1.0.0",
+  "description": "ZEC Development Toolkit",
+  "author": { "name": "lemonbalms" },
+  "repository": "https://github.com/lemonbalms/zec-toolkit",
+  "license": "MIT",
+  "skills": "./skills/"
+}
+```
+
+| 필드 | 설명 |
+|------|------|
+| `name` | 플러그인 고유 이름 |
+| `skills` | 스킬 디렉토리 경로 |
+
+## 커스텀 스킬 추가
+
+`skills/` 디렉토리에 새 폴더를 만들고 `SKILL.md`를 작성합니다:
+
+```
+skills/
+└── my-custom-skill/
+    ├── SKILL.md          # 스킬 정의 (필수)
+    └── resources/        # 참조 자료 (선택)
+        └── guide.md
+```
+
+### SKILL.md 최소 구조
+
+```yaml
+---
+name: my-custom-skill
+description: 커스텀 스킬 설명
+allowed-tools: Read, Write, Edit, Bash
+---
+
+## 스킬 내용
+
+여기에 에이전트가 따를 지침을 작성합니다.
+```
+
+## 커스텀 룰 추가
+
+`rules/` 디렉토리에 마크다운 파일을 추가합니다:
+
+```
+rules/
+└── custom/
+    └── my-rule.md
+```
+
+### 조건부 룰 로딩
+
+`paths` 프론트매터로 특정 파일 작업 시에만 룰을 로드합니다:
+
+```yaml
+---
+paths: "**/*.py,**/pyproject.toml"
+---
+
+# Python 전용 규칙
+
+Python 파일 작업 시에만 이 규칙이 적용됩니다.
+```
+
+## 다른 플러그인과의 우선순위
+
+여러 플러그인이 동일한 스킬/룰을 제공할 경우:
+
+| 우선순위 | 소스 |
+|----------|------|
+| 1 (최고) | 프로젝트 `.claude/` 디렉토리 |
+| 2 | 마지막에 설치된 플러그인 |
+| 3 | 먼저 설치된 플러그인 |
+
+ZEC Toolkit은 `zec-` 접두사를 사용하여 다른 플러그인과의 충돌을 방지합니다.
+
+## 플러그인 관리
+
+```bash
+# 설치
+claude plugin add lemonbalms/zec-toolkit
+
+# 업데이트
+claude plugin update lemonbalms/zec-toolkit
+
+# 제거
+claude plugin remove lemonbalms/zec-toolkit
+
+# 목록 확인
+claude plugin list
+```

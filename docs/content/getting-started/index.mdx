@@ -1,0 +1,95 @@
+# 소개
+
+ZEC Toolkit이 무엇이고, 왜 만들었는지 설명합니다.
+
+## ZEC Toolkit이란?
+
+**ZEC Toolkit**은 [MoAI-ADK](https://github.com/modu-ai/moai-adk)를 기반으로 만든 개인용 Claude Code 플러그인입니다.
+
+MoAI-ADK의 에이전트 오케스트레이션, 스킬 시스템, 품질 게이트 등 실제로 자주 쓰는 기능만 추려서 가볍게 재구성했고,
+다른 플러그인(oh-my-claudecode 등)과 충돌 없이 함께 사용할 수 있도록 네이밍과 구조를 분리했습니다.
+
+import { Callout } from 'nextra/components'
+
+<Callout type="info">
+개인 워크플로우에 맞춰 커스터마이징한 설정이므로, 범용 사용보다는 **개인 프로젝트 간 일관된 개발 환경을 유지**하는 데 목적이 있습니다.
+</Callout>
+
+## MoAI-ADK와의 관계
+
+```
+MoAI-ADK (원본 프레임워크)
+  └─ zec-toolkit (개인용 경량 플러그인)
+       ├─ 에이전트 오케스트레이션 → ZEC 오케스트레이터로 재구성
+       ├─ 스킬 시스템 → Harness 스킬 9종 선별
+       ├─ 품질 게이트 → TRUST 5 유지
+       └─ 네이밍 분리 → moai → zec (충돌 방지)
+```
+
+### 핵심 차이점
+
+| 항목 | MoAI-ADK | ZEC Toolkit |
+|------|----------|-------------|
+| **목적** | 범용 AI 개발 도구 키트 | 개인 프로젝트 일관성 |
+| **설치** | CLI 바이너리 (Go) | Claude Code 플러그인 |
+| **에이전트** | MoAI 에이전트 시스템 | ZEC 오케스트레이터 (27개) |
+| **명령어 접두사** | `/moai` | `/zec` |
+| **설정** | `.moai/` | `.zec/` |
+| **다른 플러그인** | 단독 사용 | OMC 등과 공존 |
+
+## 포함된 콘텐츠
+
+### Skills (9개)
+
+| 스킬 | 용도 |
+|------|------|
+| `zec/` | ZEC 오케스트레이터 (plan, run, sync, review 등) |
+| `harness-fastapi/` | FastAPI 백엔드 개발 가이드 (DDD, async, 10개 리소스) |
+| `harness-pytest/` | pytest 테스팅 가이드 (7개 리소스) |
+| `harness-nextjs/` | Next.js 15 프론트엔드 가이드 (10개 리소스) |
+| `harness-react-perf/` | React/Next.js 성능 최적화 (47개 룰) |
+| `harness-frontend-design/` | 프론트엔드 디자인 생성 |
+| `harness-web-design/` | Web Interface Guidelines 리뷰 |
+| `harness-mermaid/` | Mermaid 다이어그램 생성 (22개 레퍼런스) |
+| `harness-pdf/` | PDF 조작 도구 |
+
+### Rules (6개)
+
+| 룰 | 역할 |
+|----|------|
+| `core/zec-constitution.md` | ZEC 핵심 원칙 (위임, 병렬 실행, 품질 게이트) |
+| `development/coding-standards.md` | 코딩 표준 (언어 정책, 파일 크기, 중복 방지) |
+| `development/skill-authoring.md` | 스킬 작성 가이드 |
+| `workflow/file-reading-optimization.md` | 파일 읽기 최적화 (토큰 절약) |
+| `workflow/team-protocol.md` | 팀 에이전트 프로토콜 |
+| `workflow/mx-tag-protocol.md` | MX 코드 어노테이션 프로토콜 |
+
+### Templates (15개 YAML)
+
+`.zec/config/sections/` 디렉토리에 들어가는 프로젝트 설정 템플릿입니다:
+
+`project`, `system`, `user`, `language`, `quality`, `execution`, `workflow`, `context`,
+`git-convention`, `git-strategy`, `llm`, `mx`, `ralph`, `state`, `statusline`
+
+## 아키텍처
+
+```
+Claude Code
+├── oh-my-claudecode (OMC)     ← 멀티 에이전트 오케스트레이션 레이어
+│   ├── 에이전트 카탈로그
+│   ├── 실행 모드 (autopilot, ralph, ultrawork 등)
+│   └── 상태 관리 (.omc/)
+│
+└── zec-toolkit (플러그인)      ← 프로젝트별 개발 규칙 + 스킬
+    ├── skills/                 ← 스킬 시스템 (Harness + ZEC)
+    ├── rules/                  ← 개발 규칙
+    └── templates/              ← 설정 템플릿
+```
+
+OMC가 에이전트 실행 인프라를 담당하고, ZEC Toolkit이 **프로젝트별 개발 규칙과 전문 스킬**을 제공하는 구조입니다.
+
+## 다음 단계
+
+- [설치](/getting-started/installation) — 플러그인 설치 방법
+- [초기 설정](/getting-started/init-wizard) — 프로젝트별 설정
+- [빠른 시작](/getting-started/quickstart) — 5분 안에 첫 워크플로우 실행
