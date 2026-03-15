@@ -1,25 +1,24 @@
 #!/usr/bin/env node
 
 /**
- * OMC Keyword Detector Hook (Node.js)
- * Detects magic keywords and invokes skill tools
+ * ZEC Keyword Detector Hook (Node.js)
+ * Detects magic keywords and activates execution modes or invokes skills
  * Cross-platform: Windows, macOS, Linux
  *
  * Supported keywords (in priority order):
- * 1. cancelomc/stopomc: Stop active modes
+ * 1. cancelzec/stopzec: Stop active modes
  * 2. ralph: Persistence mode until task completion
  * 3. autopilot: Full autonomous execution
- * 4. team: Coordinated team execution (replaces ultrapilot/swarm)
+ * 4. team: Coordinated team execution
  * 5. ultrawork/ulw: Maximum parallel execution
  * 6. pipeline: Sequential agent chaining
  * 7. ccg: Claude-Codex-Gemini tri-model orchestration
- * 9. ralplan: Iterative planning with consensus
- * 10. plan: Planning interview mode
- * 11. tdd: Test-driven development
- * 12. research: Research orchestration
- * 13. ultrathink/think: Extended reasoning
- * 14. deepsearch: Codebase search (restricted patterns)
- * 15. analyze: Analysis mode (restricted patterns)
+ * 8. ralplan: Iterative planning with consensus
+ * 9. plan: Planning interview mode
+ * 10. tdd: Test-driven development
+ * 11. ultrathink/think: Extended reasoning
+ * 12. deepsearch: Codebase search
+ * 13. analyze: Analysis mode
  */
 
 import { writeFileSync, readFileSync, mkdirSync, existsSync, unlinkSync } from 'fs';
@@ -326,7 +325,7 @@ async function main() {
     const matches = [];
 
     // Cancel keywords
-    if (/\b(cancelomc|stopomc)\b/i.test(cleanPrompt)) {
+    if (/\b(cancelzec|stopzec)\b/i.test(cleanPrompt)) {
       matches.push({ name: 'cancel', args: '' });
     }
 
@@ -389,11 +388,6 @@ async function main() {
         /\btest\s+first\b/i.test(cleanPrompt) ||
         /\bred\s+green\b/i.test(cleanPrompt)) {
       matches.push({ name: 'tdd', args: '' });
-    }
-
-    // Sciomc keywords
-    if (/\banalyze\s+data\b/i.test(cleanPrompt)) {
-      matches.push({ name: 'sciomc', args: '' });
     }
 
     // Ultrathink keywords
@@ -498,7 +492,7 @@ async function main() {
 
     // Separate mode-only keywords from skill-invocable keywords
     const modeOnlyNames = new Set(['ralph', 'ultrawork', 'autopilot', 'team', 'pipeline', 'ccg', 'ultrapilot']);
-    const contextOnlyNames = new Set(['deepsearch', 'analyze', 'sciomc']);
+    const contextOnlyNames = new Set(['deepsearch', 'analyze']);
     const skillMappedNames = { plan: 'zec', tdd: 'zec', ralplan: 'zec' };
 
     const modeMatches = resolved.filter(m => modeOnlyNames.has(m.name));
@@ -523,7 +517,7 @@ async function main() {
 
     // Context-only keywords (enhanced behavior hints, no skill or state)
     if (contextMatches.length > 0) {
-      const contextHints = { deepsearch: 'Use Explore agent or Grep/Glob for thorough codebase search.', analyze: 'Use deep analysis with sequential reasoning. Consider using --deepthink flag.', sciomc: 'Use data analysis tools and structured reasoning for the dataset.' };
+      const contextHints = { deepsearch: 'Use Explore agent or Grep/Glob for thorough codebase search.', analyze: 'Use deep analysis with sequential reasoning. Consider using --deepthink flag.' };
       for (const cm of contextMatches) {
         parts.push(`[${cm.name.toUpperCase()}] ${contextHints[cm.name] || 'Enhanced mode activated.'}`);
       }
