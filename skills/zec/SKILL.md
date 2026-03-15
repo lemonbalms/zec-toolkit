@@ -56,6 +56,7 @@ When no flag is provided, the system evaluates task complexity and automatically
 
 [HARD] Extract the FIRST WORD from the Raw User Input section above. If it matches any subcommand below (or its alias), route to that workflow IMMEDIATELY. Do NOT analyze the remaining text for routing — it is context for the matched workflow:
 
+- **design** (aliases: consult, architect): Strategic consensus workflow (Planner→Architect→Critic)
 - **plan** (aliases: spec): SPEC document creation workflow
 - **run** (aliases: impl): DDD/TDD implementation workflow (per quality.yaml development_mode)
 - **sync** (aliases: docs, pr): Documentation synchronization and PR creation
@@ -97,6 +98,15 @@ If the intent is clearly a development task with no specific routing signal, def
 ---
 
 ## Workflow Quick Reference
+
+### design - Strategic Consensus
+
+Purpose: Strategic consensus through Planner→Architect→Critic deliberation loop before SPEC creation.
+Phases: Planner (strategy + RALPLAN-DR) -> Architect (review + antithesis) -> Critic (evaluate) -> Loop (max 5)
+Agents: manager-strategy (planner), manager-strategy (architect review), critic (evaluation)
+Flags: --deliberate (deep analysis with pre-mortem + expanded test plan), review (evaluate existing consensus)
+Output: .zec/specs/SPEC-{ID}/consensus-summary.md
+For detailed orchestration: Read ${CLAUDE_SKILL_DIR}/workflows/design.md
 
 ### plan - SPEC Document Creation
 

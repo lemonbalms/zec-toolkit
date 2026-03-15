@@ -1,0 +1,136 @@
+# /zec design
+
+전략 합의 워크플로우입니다. Planner→Architect→Critic 3자 토론을 통해 구현 전략에 합의한 뒤, `/zec plan`으로 자연스럽게 연결됩니다.
+
+import { Callout } from 'nextra/components'
+
+## 사용법
+
+```bash
+/zec design "인증 시스템 리팩토링"              # 전략 합의
+/zec design "결제 시스템" --deliberate           # 심층 합의 (고위험)
+/zec design review                              # 기존 전략 리뷰
+/zec design review SPEC-AUTH-001                # 특정 SPEC 전략 리뷰
+```
+
+## 언제 사용하나?
+
+| 상황 | 명령어 |
+|------|--------|
+| 복잡한 기능 (다중 모듈, 아키텍처 변경) | `/zec design` → `/zec plan` |
+| 단순한 기능 (명확한 범위) | `/zec plan` (design 생략) |
+| 고위험 작업 (인증, 마이그레이션, 공개 API) | `/zec design --deliberate` |
+
+## 전체 파이프라인에서의 위치
+
+```
+/zec design  →  /zec plan  →  /zec run  →  /zec sync  →  /zec review
+  전략 합의      SPEC 생성      구현         동기화+PR      코드 리뷰
+  (선택)         (필수)         (필수)       (필수)         (선택)
+```
+
+## 참여 에이전트
+
+| 단계 | 에이전트 | 모델 | 역할 |
+|------|---------|------|------|
+| Planner | `manager-strategy` | opus | 전략 수립 + RALPLAN-DR 요약 |
+| Architect | `manager-strategy` (review) | opus | 반론 + 트레이드오프 분석 |
+| Critic | `critic` | opus | 품질 평가 + 최종 판정 |
+
+## 워크플로우 단계
+
+### Phase 0.1: Planner — 전략 수립
+
+`manager-strategy` 에이전트가 기능 요청을 분석하고 전략을 수립합니다:
+
+- 영향 받는 모듈, 의존성, 제약사항 식별
+- 구현 전략 제안 (단계적 접근)
+- **RALPLAN-DR 요약** 생성:
+  - Principles (3-5개): 핵심 설계 원칙
+  - Decision Drivers (top 3): 결정 요인
+  - Viable Options (2개 이상): 구현 방안 + 각각의 장단점
+
+`--deliberate` 모드 추가 항목:
+  - Pre-mortem (3건): 실패 시나리오
+  - 확장 테스트 계획: unit / integration / e2e / observability
+
+<Callout type="warning">
+Phase 0.1에서는 코드 작성이 금지됩니다. 전략과 분석에만 집중합니다.
+</Callout>
+
+### Phase 0.2: Architect — 아키텍처 검토
+
+`manager-strategy` 에이전트가 리뷰 모드로 Planner의 전략을 검토합니다:
+
+- 선호 옵션에 대한 **최강 반론 (antithesis)** 제시
+- 최소 1개 의미 있는 **트레이드오프 긴장점** 제시
+- 가능한 경우 **종합안 (synthesis)** 제안
+
+<Callout>
+Phase 0.2는 Phase 0.1 완료 후 순차 실행됩니다. 병렬 실행 금지.
+</Callout>
+
+### Phase 0.3: Critic — 평가
+
+`critic` 에이전트가 최종 평가합니다:
+
+| 검증 항목 | 기준 |
+|----------|------|
+| 원칙-옵션 일관성 | 선택한 옵션이 원칙과 충돌하지 않는가 |
+| 대안 탐색 공정성 | 기각된 옵션이 공정하게 평가되었는가 |
+| 리스크 완화 | 식별된 리스크에 구체적 대응이 있는가 |
+| 인수 조건 | 테스트 가능한 기준이 정의되었는가 |
+
+판정: **APPROVED** / **REVISE** / **REJECT**
+
+### Re-review Loop (최대 5회)
+
+Critic이 REVISE를 반환하면:
+1. Architect + Critic 피드백을 Planner에게 전달
+2. Planner가 수정된 전략 제출
+3. Architect → Critic 순차 재평가
+4. 5회까지 반복, 미합의 시 최선 버전 제시
+
+## 산출물
+
+합의 완료 시 `.zec/specs/SPEC-{ID}/consensus-summary.md` 생성:
+
+```
+consensus-summary.md
+├── RALPLAN-DR Summary
+│   ├── Principles (3-5개)
+│   ├── Decision Drivers (top 3)
+│   └── Viable Options (2개 이상)
+├── ADR (Architecture Decision Record)
+│   ├── Decision, Drivers, Alternatives
+│   ├── Why chosen, Consequences
+│   └── Follow-ups
+├── Pre-mortem (--deliberate만)
+└── Expanded Test Plan (--deliberate만)
+```
+
+## `/zec plan`과의 연결
+
+`/zec design` 완료 후 선택지:
+- **SPEC 생성 시작 (권장)**: `/zec plan`이 consensus-summary.md를 자동 참조
+- **나중에 실행**: consensus 저장 후 수동으로 `/zec plan` 실행
+- **합의 수정**: Phase 0.1로 복귀
+- **취소**: 폐기
+
+`/zec plan`이 실행될 때 consensus-summary.md가 존재하면:
+- Deep Research 범위를 합의 방향으로 한정
+- manager-spec이 합의된 원칙/드라이버를 EARS로 변환
+- plan.md에 ADR 포함
+
+## 리뷰 모드
+
+```bash
+/zec design review SPEC-AUTH-001
+```
+
+기존 consensus-summary.md를 Critic이 재평가합니다. 결과: APPROVED / REVISE / REJECT.
+
+## 다음 단계
+
+- [/zec plan](/workflow-commands/zec-plan) — 합의 기반 SPEC 생성
+- [ZEC 오케스트레이터란?](/core-concepts/what-is-zec) — 에이전트 위임 원칙

@@ -76,6 +76,24 @@ Pre-execution commands: git status, git branch, git log, git diff, find .zec/spe
 
 ## Phase Sequence
 
+### Phase 0: Consensus Integration (Conditional)
+
+Trigger: Check if `.zec/specs/SPEC-{ID}/consensus-summary.md` exists for the target SPEC.
+
+If consensus-summary.md exists (created by `/zec design`):
+- Load consensus-summary.md as primary context for all subsequent phases
+- Phase 0.5 Deep Research: scope research using consensus direction (Principles, Decision Drivers)
+- Phase 1B SPEC Planning: manager-spec uses consensus for EARS conversion:
+  - Principles → SPEC design principles
+  - Decision Drivers → Requirement priorities
+  - Chosen Option → Tech stack / architecture decisions
+  - ADR → Included in plan.md
+- Skip exploration of already-decided architectural questions
+
+If consensus-summary.md does NOT exist:
+- Proceed normally (direct SPEC creation without strategic consensus)
+- This is the default behavior for simple features
+
 ### Phase 1A: Project Exploration (Optional)
 
 Agent: Explore subagent (read-only codebase analysis)
