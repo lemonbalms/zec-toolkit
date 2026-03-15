@@ -17,8 +17,6 @@
  * 9. plan: Planning interview mode
  * 10. tdd: Test-driven development
  * 11. ultrathink/think: Extended reasoning
- * 12. deepsearch: Codebase search
- * 13. analyze: Analysis mode
  */
 
 import { writeFileSync, readFileSync, mkdirSync, existsSync, unlinkSync } from 'fs';
@@ -272,7 +270,7 @@ function resolveConflicts(matches) {
 
   // Sort by priority order
   const priorityOrder = ['cancel','ralph','autopilot','team','ultrawork',
-    'pipeline','ccg','ralplan','plan','tdd','research','ultrathink','deepsearch','analyze'];
+    'pipeline','ccg','ralplan','plan','tdd','ultrathink'];
   resolved.sort((a, b) => priorityOrder.indexOf(a.name) - priorityOrder.indexOf(b.name));
 
   return resolved;
@@ -395,20 +393,6 @@ async function main() {
       matches.push({ name: 'ultrathink', args: '' });
     }
 
-    // Deepsearch keywords
-    if (/\b(deepsearch)\b/i.test(cleanPrompt) ||
-        /\bsearch\s+(the\s+)?(codebase|code|files?|project)\b/i.test(cleanPrompt) ||
-        /\bfind\s+(in\s+)?(codebase|code|all\s+files?)\b/i.test(cleanPrompt)) {
-      matches.push({ name: 'deepsearch', args: '' });
-    }
-
-    // Analyze keywords
-    if (/\b(deep\s*analyze)\b/i.test(cleanPrompt) ||
-        /\binvestigate\s+(the|this|why)\b/i.test(cleanPrompt) ||
-        /\bdebug\s+(the|this|why)\b/i.test(cleanPrompt)) {
-      matches.push({ name: 'analyze', args: '' });
-    }
-
     // No matches - pass through
     if (matches.length === 0) {
       console.log(JSON.stringify({ continue: true, suppressOutput: true }));
@@ -492,12 +476,10 @@ async function main() {
 
     // Separate mode-only keywords from skill-invocable keywords
     const modeOnlyNames = new Set(['ralph', 'ultrawork', 'autopilot', 'team', 'pipeline', 'ccg', 'ultrapilot']);
-    const contextOnlyNames = new Set(['deepsearch', 'analyze']);
     const skillMappedNames = { plan: 'zec', tdd: 'zec', ralplan: 'zec' };
 
     const modeMatches = resolved.filter(m => modeOnlyNames.has(m.name));
-    const contextMatches = resolved.filter(m => contextOnlyNames.has(m.name));
-    const skillMatches = resolved.filter(m => !modeOnlyNames.has(m.name) && !contextOnlyNames.has(m.name));
+    const skillMatches = resolved.filter(m => !modeOnlyNames.has(m.name));
 
     // Remap keywords that are zec subcommands to Skill: zec with args
     const remappedSkills = skillMatches.map(m => {
@@ -513,14 +495,6 @@ async function main() {
     if (modeMatches.length > 0) {
       const modeNames = modeMatches.map(m => m.name.toUpperCase()).join(', ');
       parts.push(`[ACTIVE MODE: ${modeNames}] Mode activated. Proceed with the user's request. Use --${modeMatches[0].name} flag if invoking /zec workflows.`);
-    }
-
-    // Context-only keywords (enhanced behavior hints, no skill or state)
-    if (contextMatches.length > 0) {
-      const contextHints = { deepsearch: 'Use Explore agent or Grep/Glob for thorough codebase search.', analyze: 'Use deep analysis with sequential reasoning. Consider using --deepthink flag.' };
-      for (const cm of contextMatches) {
-        parts.push(`[${cm.name.toUpperCase()}] ${contextHints[cm.name] || 'Enhanced mode activated.'}`);
-      }
     }
 
     // Skill invocations for real skills
