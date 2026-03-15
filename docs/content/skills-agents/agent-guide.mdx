@@ -1,19 +1,28 @@
 # 에이전트 가이드
 
-ZEC는 27개 전문 에이전트를 사용하여 작업을 위임합니다. 각 에이전트는 특정 도메인에 특화되어 있습니다.
+ZEC는 30개 전문 에이전트를 사용하여 작업을 위임합니다. 각 에이전트는 특정 도메인에 특화되어 있습니다.
 
 ## 에이전트 선택 의사결정 트리
 
 ```
 사용자 요청
     │
-    ├─ 읽기 전용 탐색? ──────▶ Explore (haiku)
-    ├─ 계획/요구사항? ────────▶ spec, strategist, critic (opus)
-    ├─ 구현 작업? ────────────▶ executor, deep-executor, backend, frontend (sonnet/opus)
+    ├─ 읽기 전용 탐색? ──────▶ explore (haiku)
+    ├─ 계획/설계? ────────────▶ spec, strategist, critic (opus)
+    ├─ 일반 구현? ────────────▶ executor (sonnet), deep-executor (opus)
+    ├─ 도메인 구현? ──────────▶ backend, frontend, debugger (sonnet)
     ├─ 품질/리뷰? ────────────▶ quality, security, tester, verifier (sonnet)
-    ├─ 지원 작업? ────────────▶ debugger, build-fixer, docs, git (sonnet/haiku)
+    ├─ 지원 작업? ────────────▶ build-fixer, docs, git, refactorer (sonnet/haiku)
     └─ 팀 모드? ──────────────▶ team-reader, team-coder, team-tester (sonnet)
 ```
+
+## executor vs deep-executor vs expert-backend
+
+| Agent | Model | Scope | Use When |
+|-------|-------|-------|----------|
+| **executor** | sonnet | 최소 변경, 단일 태스크 | "이 함수에 파라미터 추가해줘" |
+| **deep-executor** | opus | 다중 파일, 자율 탐색+구현 | "인증 시스템 전체 리팩토링해줘" |
+| **expert-backend** | sonnet | 도메인 전문 (API, DB, auth) | "FastAPI 엔드포인트 설계해줘" |
 
 ## 전체 에이전트 카탈로그
 
