@@ -496,9 +496,36 @@ async function main() {
       return;
     }
 
-    const skillMatches = resolved;
-    if (skillMatches.length > 0) {
-      console.log(JSON.stringify(createHookOutput(createMultiSkillInvocation(skillMatches, prompt))));
+    // Separate mode-only keywords from skill-invocable keywords
+    const modeOnlyNames = new Set(['ralph', 'ultrawork', 'autopilot', 'team', 'pipeline', 'ccg', 'ultrapilot']);
+    const skillMappedNames = { plan: 'zec', tdd: 'zec', ralplan: 'zec', deepsearch: 'zec', analyze: 'zec', sciomc: 'zec' };
+
+    const modeMatches = resolved.filter(m => modeOnlyNames.has(m.name));
+    const skillMatches = resolved.filter(m => !modeOnlyNames.has(m.name));
+
+    // Remap keywords that are zec subcommands to Skill: zec with args
+    const remappedSkills = skillMatches.map(m => {
+      if (skillMappedNames[m.name]) {
+        return { name: skillMappedNames[m.name], args: m.name };
+      }
+      return m;
+    });
+
+    const parts = [];
+
+    // Mode activation context (no skill invocation needed — state files already written)
+    if (modeMatches.length > 0) {
+      const modeNames = modeMatches.map(m => m.name.toUpperCase()).join(', ');
+      parts.push(`[ACTIVE MODE: ${modeNames}] Mode activated. Proceed with the user's request. Use --${modeMatches[0].name} flag if invoking /zec workflows.`);
+    }
+
+    // Skill invocations for real skills
+    if (remappedSkills.length > 0) {
+      parts.push(createMultiSkillInvocation(remappedSkills, prompt));
+    }
+
+    if (parts.length > 0) {
+      console.log(JSON.stringify(createHookOutput(parts.join('\n\n'))));
     }
   } catch (error) {
     // On any error, allow continuation
