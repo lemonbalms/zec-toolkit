@@ -1,0 +1,20 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "zec-toolkit",
+  "description": "ZEC Development Toolkit — Claude Code plugin for unified development orchestration",
+  "owner": {
+    "name": "lemonbalms"
+  },
+  "plugins": [
+    {
+      "name": "zec-toolkit",
+      "description": "ZEC Development Toolkit — unified development orchestration with harness skills",
+      "version": "1.0.0",
+      "author": {
+        "name": "lemonbalms"
+      },
+      "source": "./",
+      "category": "development"
+    }
+  ]
+}
